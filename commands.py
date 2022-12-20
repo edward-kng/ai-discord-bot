@@ -77,6 +77,28 @@ async def leave(interaction: discord.Interaction):
         await interaction.response.send_message("Not in a voice channel!")
 
 @bot.tree.command()
+async def pause(interaction: discord.Interaction):
+    guild = interaction.guild
+    voice = discord.utils.get(bot.voice_clients, guild = guild)
+    
+    guilds[guild].paused = True
+
+    voice.pause()
+
+    await interaction.response.send_message("Paused!")
+
+@bot.tree.command()
+async def resume(interaction: discord.Interaction):
+    guild = interaction.guild
+    voice = discord.utils.get(bot.voice_clients, guild = guild)
+    
+    guilds[guild].paused = False
+
+    voice.resume()
+
+    await interaction.response.send_message("Resumed!")
+
+@bot.tree.command()
 async def say(interaction: discord.Interaction, message: str):
         await interaction.response.send_message(message)
 
@@ -161,7 +183,8 @@ async def playback(voice, channel):
         
         await channel.send("Now playing: " + song[1])
 
-        while not guilds[guild].skipped and guilds[guild].active and voice.is_playing():
+        while not guilds[guild].skipped and guilds[guild].active and (
+                    voice.is_playing() or guilds[guild].paused):
             await asyncio.sleep(1)
         
         if guilds[guild].skipped:

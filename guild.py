@@ -6,6 +6,7 @@ class Guild:
         self.download_queue = []
         self.downloaded_songs = []
         self.skipped = False
+        self.paused = False
         self.active = True
         self.lock = Lock()
         self.download_ready = Condition()
