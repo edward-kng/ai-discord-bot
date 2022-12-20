@@ -21,7 +21,7 @@ A Discord bot that plays music from YouTube, SoundCloud and others.
 4. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file containing:
 
 ```
-DISCORD_TOKEN=<your token>
+DISCORD_BOT_TOKEN=<your token>
 ```
 
 5. Execute the `run.py` file.
