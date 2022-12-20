@@ -24,4 +24,4 @@ A Discord bot that plays music from YouTube, SoundCloud and others.
 DISCORD_BOT_TOKEN=<your token>
 ```
 
-5. Execute the `run.py` file.
+6. Execute the `run.py` file.
