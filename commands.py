@@ -31,6 +31,9 @@ async def play(interaction: discord.Interaction, song: str):
             download(guild, channel))
         guilds[guild].playback_task = asyncio.create_task(
             playback(voice, channel))
+        guilds[guild].idle_task = asyncio.create_task(
+            idle_timeout(guild, voice)
+        )
 
     await interaction.response.send_message("Added to queue: " + song)
     
@@ -203,3 +206,21 @@ async def playback(voice, channel):
         guilds[guild].download_ready.notify_all()
     finally:
         guilds[guild].download_ready.release()
+
+async def idle_timeout(guild, voice):
+    while guilds[guild].active:
+        idle_secs = 0
+
+        await asyncio.sleep(0)
+
+        while not voice.is_playing() and guilds[guild].active:
+            await asyncio.sleep(1)
+            idle_secs += 1
+
+            if idle_secs >= 300:
+                await voice.disconnect()
+        
+                guilds[guild].active = False
+                
+                async with guilds[guild].song_ready:
+                    guilds[guild].song_ready.notify()

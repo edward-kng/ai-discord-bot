@@ -13,3 +13,4 @@ class Guild:
         self.song_ready = Condition()
         self.download_task = None
         self.playback_task = None
+        self.idle_task = None
