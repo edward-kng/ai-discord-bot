@@ -117,7 +117,8 @@ async def download(guild, channel):
 
             if metadata is None:
                 await channel.send(
-                    "Could not download: " + song_link + ", invalid URL or song not found!")
+                    "Could not download: " + song_link
+                    + ", invalid URL or song not found!")
             
             # Check if URL is a playlist, then add each song to the download queue
             elif "entries" in metadata:
@@ -152,7 +153,8 @@ async def download(guild, channel):
 
 def get_metadata(song):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s", "default_search": "ytsearch"})
+        "format": "bestaudio", "outtmpl": "cache/%(id)s",
+        "default_search": "ytsearch"})
 
     try:
         return downloader.extract_info(song, download = False)
@@ -161,7 +163,8 @@ def get_metadata(song):
 
 def background_download(song):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s", "default_search": "ytsearch"})
+        "format": "bestaudio", "outtmpl": "cache/%(id)s",
+        "default_search": "ytsearch"})
     
     metadata = downloader.extract_info(song)
     
