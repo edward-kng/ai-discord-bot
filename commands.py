@@ -12,7 +12,7 @@ guilds = {}
 cached_songs = {}
 
 @bot.tree.command()
-async def play(interaction: discord.Interaction, url: str):
+async def play(interaction: discord.Interaction, song: str):
     user_connected = interaction.user.voice
     guild = interaction.guild
     channel = interaction.channel
@@ -32,14 +32,14 @@ async def play(interaction: discord.Interaction, url: str):
         guilds[guild].playback_task = asyncio.create_task(
             playback(voice, channel))
 
-    await interaction.response.send_message("Added to queue: " + url)
+    await interaction.response.send_message("Added to queue: " + song)
     
     await guilds[guild].download_ready.acquire()
     
     await guilds[guild].lock.acquire()
     
     try:
-        guilds[guild].download_queue.append(url)
+        guilds[guild].download_queue.append(song)
         guilds[guild].download_ready.notify()
     finally:
         guilds[guild].download_ready.release()
@@ -112,21 +112,21 @@ async def download(guild, channel):
             break
 
         async with guilds[guild].lock:
-            url = guilds[guild].download_queue.pop(0)
-            metadata = await asyncio.to_thread(get_metadata, url)
+            song_link = guilds[guild].download_queue.pop(0)
+            metadata = await asyncio.to_thread(get_metadata, song_link)
 
             if metadata is None:
                 await channel.send(
-                    "Could not download: " + url + ", invalid URL!")
+                    "Could not download: " + song_link + ", invalid URL or song not found!")
             
             # Check if URL is a playlist, then add each song to the download queue
             elif "entries" in metadata:
                 for song in metadata["entries"]:
                     guilds[guild].download_queue.append(song["original_url"])
             else:
-                song = await asyncio.to_thread(background_download, url)
+                song = await asyncio.to_thread(background_download, song_link)
                 
-                guilds[guild].play_queue.append(("cache/" + song, url))
+                guilds[guild].play_queue.append(("cache/" + song, song_link))
                 
                 if song not in cached_songs:
                     cached_songs[song] = set()
@@ -150,20 +150,20 @@ async def download(guild, channel):
         if len(cached_songs[song]) == 0:
             os.remove("cache/" + song)
 
-def get_metadata(url):
+def get_metadata(song):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s"})
+        "format": "bestaudio", "outtmpl": "cache/%(id)s", "default_search": "ytsearch"})
 
     try:
-        return downloader.extract_info(url, download = False)
+        return downloader.extract_info(song, download = False)
     except:
         return None
 
-def background_download(url):
+def background_download(song):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s"})
+        "format": "bestaudio", "outtmpl": "cache/%(id)s", "default_search": "ytsearch"})
     
-    metadata = downloader.extract_info(url)
+    metadata = downloader.extract_info(song)
     
     return metadata["id"]
 
@@ -200,4 +200,3 @@ async def playback(voice, channel):
         guilds[guild].download_ready.notify_all()
     finally:
         guilds[guild].download_ready.release()
-
