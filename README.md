@@ -11,9 +11,9 @@ A Discord bot that plays music from YouTube, SoundCloud and others.
 - `/say <message>` - send a message in the chat
 
 ## Pip dependencies
-- discord.py
-- yt_dlp
-- python-dotenv (optional)
+- [discord.py](https://github.com/Rapptz/discord.py)
+- [yt_dlp](https://github.com/yt-dlp/yt-dlp)
+- [python-dotenv](https://github.com/theskumar/python-dotenv) (optional)
 
 ## Setup
 1. Install Python 3 and the required dependencies above.
