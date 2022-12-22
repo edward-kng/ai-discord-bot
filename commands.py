@@ -107,6 +107,28 @@ async def resume(interaction: discord.Interaction):
     await interaction.response.send_message("Resumed!")
 
 @bot.tree.command()
+async def queue(interaction: discord.Interaction):
+    guild = interaction.guild
+    
+    if guild not in guilds or not guilds[guild].active:
+        await interaction.response.send_message("No music playing!")
+
+        return
+    
+    msg = "Queue:\n"
+    nr = 1
+
+    for song in guilds[guild].play_queue:
+        msg += str(nr) + ". " + song + "\n"
+        nr += 1
+
+    for song in guilds[guild].download_queue:
+        msg += str(nr) + ". " + song[2] + "\n"
+        nr += 1
+
+    await interaction.response.send_message(msg)
+
+@bot.tree.command()
 async def say(interaction: discord.Interaction, message: str):
         await interaction.response.send_message(message)
 
@@ -119,7 +141,7 @@ async def download(guild):
         if not guilds[guild].active:
             break
 
-        song = guilds[guild].download_queue.pop(0)
+        song = guilds[guild].download_queue[0]
         cache_dir = "cache/" + song[1]
 
         if not os.path.exists(cache_dir):
@@ -157,6 +179,8 @@ async def download(guild):
                         guilds[guild].song_ready.notify()
                     finally:
                         guilds[guild].song_ready.release()
+
+        guilds[guild].download_queue.pop(0)
 
     for song in guilds[guild].downloaded_songs:
         cached_songs[song].remove(guild)

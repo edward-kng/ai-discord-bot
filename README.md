@@ -7,6 +7,7 @@ A Discord bot that plays music from YouTube, SoundCloud and others.
 - `/skip` - skip the current song
 - `/pause` - pause current song
 - `/resume` - resume current song
+- `/queue` - show song queue
 - `/leave` - leave the voice chat
 - `/say <message>` - send a message in the chat
 
