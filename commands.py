@@ -119,7 +119,7 @@ async def queue(interaction: discord.Interaction):
     nr = 1
 
     for song in guilds[guild].play_queue:
-        msg += str(nr) + ". " + song + "\n"
+        msg += str(nr) + ". " + song.split("$")[2] + "\n"
         nr += 1
 
     for song in guilds[guild].download_queue:
@@ -158,7 +158,7 @@ async def download(guild):
             await asyncio.sleep(0.1)
 
             for file in os.listdir(cache_dir):
-                separator = file.index("_")
+                separator = file.index("$")
 
                 if int(file[0:separator]) == track_nr and (
                         not ".part" in file):
@@ -210,7 +210,7 @@ def get_metadata(song):
 
 def background_download(song, cache_dir, download_status):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": cache_dir + "/%(autonumber)s_%(id)s",
+        "format": "bestaudio", "outtmpl": cache_dir + "/%(autonumber)s$%(id)s$%(title)s",
         "default_search": "ytsearch"})
     
     downloader.download(song)
@@ -230,7 +230,7 @@ async def playback(voice, channel):
         song = guilds[guild].play_queue.pop(0)
         voice.play(discord.FFmpegPCMAudio(song))
         
-        # await channel.send("Now playing: " + song)
+        await channel.send("Now playing: " + song.split("$")[2])
 
         while not guilds[guild].skipped and guilds[guild].active and (
                     voice.is_playing() or guilds[guild].paused):
