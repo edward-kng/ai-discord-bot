@@ -4,6 +4,7 @@ import os
 import yt_dlp
 from bot import Bot
 from guild import Guild
+from threading import Thread
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,30 +24,38 @@ async def play(interaction: discord.Interaction, song: str):
         
         return
 
+    await interaction.response.send_message("Searching for song...")
+
+    metadata = await asyncio.to_thread(get_metadata, song)
+
+    if metadata is None:
+        await channel.send("Error: could not find song or invalid URL!")
+
+        return
+
+    await channel.send("Added to queue: " + metadata["title"])
+
     if voice is None:
         voice = await user_connected.channel.connect()
         
         guilds[guild] = Guild()
         guilds[guild].download_task = asyncio.create_task(
-            download(guild, channel))
+            download(guild))
         guilds[guild].playback_task = asyncio.create_task(
             playback(voice, channel))
         guilds[guild].idle_task = asyncio.create_task(
             idle_timeout(guild, voice)
         )
-
-    await interaction.response.send_message("Added to queue: " + song)
     
+    guilds[guild].download_queue.append(
+            (song, metadata["id"], metadata["title"]))
+
     await guilds[guild].download_ready.acquire()
     
-    await guilds[guild].lock.acquire()
-    
     try:
-        guilds[guild].download_queue.append(song)
         guilds[guild].download_ready.notify()
     finally:
         guilds[guild].download_ready.release()
-        guilds[guild].lock.release()
 
 @bot.tree.command()
 async def skip(interaction: discord.Interaction):
@@ -83,9 +92,7 @@ async def leave(interaction: discord.Interaction):
 async def pause(interaction: discord.Interaction):
     guild = interaction.guild
     voice = discord.utils.get(bot.voice_clients, guild = guild)
-    
     guilds[guild].paused = True
-
     voice.pause()
 
     await interaction.response.send_message("Paused!")
@@ -94,9 +101,7 @@ async def pause(interaction: discord.Interaction):
 async def resume(interaction: discord.Interaction):
     guild = interaction.guild
     voice = discord.utils.get(bot.voice_clients, guild = guild)
-    
     guilds[guild].paused = False
-
     voice.resume()
 
     await interaction.response.send_message("Resumed!")
@@ -105,7 +110,7 @@ async def resume(interaction: discord.Interaction):
 async def say(interaction: discord.Interaction, message: str):
         await interaction.response.send_message(message)
 
-async def download(guild, channel):
+async def download(guild):
     while guilds[guild].active:
         if len(guilds[guild].download_queue) == 0:
             async with guilds[guild].download_ready:
@@ -114,64 +119,78 @@ async def download(guild, channel):
         if not guilds[guild].active:
             break
 
-        async with guilds[guild].lock:
-            song_link = guilds[guild].download_queue.pop(0)
-            metadata = await asyncio.to_thread(get_metadata, song_link)
+        song = guilds[guild].download_queue.pop(0)
+        cache_dir = "cache/" + song[1]
 
-            if metadata is None:
-                await channel.send(
-                    "Could not download: " + song_link
-                    + ", invalid URL or song not found!")
-            
-            # Check if URL is a playlist, then add each song to the download queue
-            elif "entries" in metadata:
-                for song in metadata["entries"]:
-                    guilds[guild].download_queue.append(song["original_url"])
-            else:
-                song = await asyncio.to_thread(background_download, song_link)
-                
-                guilds[guild].play_queue.append(("cache/" + song, song_link))
-                
-                if song not in cached_songs:
-                    cached_songs[song] = set()
+        if not os.path.exists(cache_dir):
+            os.mkdir(cache_dir)
 
-                guilds[guild].downloaded_songs.append(song)
+        track_nr = 1
+        download_status = set()
+        download_thread = Thread(
+            target = background_download, args = (
+                song[0], cache_dir, download_status))
+        download_thread.start()
 
-                # Add this guild to set of guilds that have requested this song
-                cached_songs[song].add(guild)
+        while len(download_status) == 0:
+            await asyncio.sleep(0.1)
 
-                await guilds[guild].song_ready.acquire()
+            for file in os.listdir(cache_dir):
+                separator = file.index("_")
 
-                try:
-                    guilds[guild].song_ready.notify_all()
-                finally:
-                    guilds[guild].song_ready.release()
-        
+                if int(file[0:separator]) == track_nr and (
+                        not ".part" in file):
+                    file_path = cache_dir + "/" + file
+                    track_nr += 1
+                    guilds[guild].play_queue.append(file_path)
+                    guilds[guild].downloaded_songs.append(file_path)
+
+                    if file_path not in cached_songs:
+                        cached_songs[file_path] = set()
+
+                    # Add this guild to set of guilds that have requested this song
+                    cached_songs[file_path].add(guild)
+
+                    await guilds[guild].song_ready.acquire()
+
+                    try:
+                        guilds[guild].song_ready.notify()
+                    finally:
+                        guilds[guild].song_ready.release()
+
     for song in guilds[guild].downloaded_songs:
         cached_songs[song].remove(guild)
 
         # If no other guild has requested this song, delete it from cache
         if len(cached_songs[song]) == 0:
-            os.remove("cache/" + song)
+            os.remove(song)
 
 def get_metadata(song):
-    downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s",
-        "default_search": "ytsearch"})
+    if "youtube.com" in song:
+        downloader = yt_dlp.YoutubeDL({})
 
-    try:
-        return downloader.extract_info(song, download = False)
-    except:
-        return None
+        try:
+            return downloader.extract_info(
+                song, download = False, process = False)
+        except:
+            return None
+    
+    # Song is not a YouTube URL, use search or generic downloader
+    else:
+        downloader = yt_dlp.YoutubeDL({"default_search": "ytsearch"})
 
-def background_download(song):
+        try:
+            return downloader.extract_info(song, download = False)
+        except:
+            return None
+
+def background_download(song, cache_dir, download_status):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": "cache/%(id)s",
+        "format": "bestaudio", "outtmpl": cache_dir + "/%(autonumber)s_%(id)s",
         "default_search": "ytsearch"})
     
-    metadata = downloader.extract_info(song)
-    
-    return metadata["id"]
+    downloader.download(song)
+    download_status.add(0)
 
 async def playback(voice, channel):
     guild = voice.guild
@@ -185,9 +204,9 @@ async def playback(voice, channel):
             break
             
         song = guilds[guild].play_queue.pop(0)
-        voice.play(discord.FFmpegPCMAudio(song[0]))
+        voice.play(discord.FFmpegPCMAudio(song))
         
-        await channel.send("Now playing: " + song[1])
+        # await channel.send("Now playing: " + song)
 
         while not guilds[guild].skipped and guilds[guild].active and (
                     voice.is_playing() or guilds[guild].paused):
@@ -215,6 +234,7 @@ async def idle_timeout(guild, voice):
 
         while not voice.is_playing() and guilds[guild].active:
             await asyncio.sleep(1)
+            
             idle_secs += 1
 
             if idle_secs >= 300:
