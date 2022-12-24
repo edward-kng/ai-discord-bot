@@ -1,4 +1,4 @@
-from asyncio import Condition, Lock
+from asyncio import Condition
 
 class Guild:
     spotify_client = None
