@@ -1,6 +1,9 @@
 from asyncio import Condition, Lock
 
 class Guild:
+    spotify_client = None
+    cached_songs = {}
+
     def __init__(self):
         self.play_queue = []
         self.download_queue = []

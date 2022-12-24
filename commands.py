@@ -10,7 +10,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = Bot(intents)
 guilds = {}
-cached_songs = {}
 
 @bot.tree.command()
 async def play(interaction: discord.Interaction, song: str):
@@ -26,14 +25,19 @@ async def play(interaction: discord.Interaction, song: str):
 
     await interaction.response.send_message("Searching for song...")
 
-    metadata = await asyncio.to_thread(get_metadata, song)
+    metadata_list = await asyncio.to_thread(get_metadata, song)
 
-    if metadata is None:
+    if metadata_list is None:
         await channel.send("Error: could not find song or invalid URL!")
 
         return
 
-    await channel.send("Added to queue: " + metadata["title"])
+    msg = "Added to queue: "
+
+    for metadata in metadata_list:
+        msg += "\n" + metadata[2]
+
+    await channel.send(msg)
 
     if voice is None:
         voice = await user_connected.channel.connect()
@@ -47,8 +51,7 @@ async def play(interaction: discord.Interaction, song: str):
             idle_timeout(guild, voice)
         )
     
-    guilds[guild].download_queue.append(
-            (song, metadata["id"], metadata["title"]))
+    guilds[guild].download_queue.extend(metadata_list)
 
     await guilds[guild].download_ready.acquire()
     
@@ -167,11 +170,11 @@ async def download(guild):
                     guilds[guild].play_queue.append(file_path)
                     guilds[guild].downloaded_songs.append(file_path)
 
-                    if file_path not in cached_songs:
-                        cached_songs[file_path] = set()
+                    if file_path not in Guild.cached_songs:
+                        Guild.cached_songs[file_path] = set()
 
                     # Add this guild to set of guilds that have requested this song
-                    cached_songs[file_path].add(guild)
+                    Guild.cached_songs[file_path].add(guild)
 
                     await guilds[guild].song_ready.acquire()
 
@@ -183,30 +186,61 @@ async def download(guild):
         guilds[guild].download_queue.pop(0)
 
     for song in guilds[guild].downloaded_songs:
-        cached_songs[song].remove(guild)
+        Guild.cached_songs[song].remove(guild)
 
         # If no other guild has requested this song, delete it from cache
-        if len(cached_songs[song]) == 0:
+        if len(Guild.cached_songs[song]) == 0:
             os.remove(song)
 
 def get_metadata(song):
-    if "youtube.com" in song:
+    track_list = []
+
+    if Guild.spotify_client is not None and (
+        "spotify.com" in song and "playlist" in song):
+        playlist = Guild.spotify_client.playlist_tracks(song)
+        for track in playlist["items"]:
+            title = ""
+
+            for artist in track["track"]["album"]["artists"]:
+                    title += artist["name"] + " "
+
+            title += "- " + track["track"]["name"]
+
+            track_list.append((title + " AUDIO", track["track"]["id"], title))
+    elif Guild.spotify_client is not None and "spotify.com" in song:
+        track = Guild.spotify_client.track(song)
+
+        title = ""
+
+        for artist in track["track"]["album"]["artists"]:
+                title += artist["name"] + " "
+
+        title += "- " + track["track"]["name"]
+
+        track_list.append((title + " AUDIO", track["track"]["id"], title))
+    elif "youtube.com" in song:
         downloader = yt_dlp.YoutubeDL({})
 
         try:
-            return downloader.extract_info(
+            metadata = downloader.extract_info(
                 song, download = False, process = False)
+            
+            track_list.append(song, metadata["id"], metadata["title"])
         except:
             return None
     
-    # Song is not a YouTube URL, use search or generic downloader
+    # Song is not a YouTube or Spotify URL, use search or generic downloader
     else:
         downloader = yt_dlp.YoutubeDL({"default_search": "ytsearch"})
 
         try:
-            return downloader.extract_info(song, download = False)
+            metadata = downloader.extract_info(song, download = False)
+
+            track_list.append(song, metadata["id"], metadata["title"])
         except:
             return None
+
+    return track_list
 
 def background_download(song, cache_dir, download_status):
     downloader = yt_dlp.YoutubeDL({
