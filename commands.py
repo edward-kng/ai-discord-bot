@@ -195,29 +195,43 @@ async def download(guild):
 def get_metadata(song):
     track_list = []
 
-    if Guild.spotify_client is not None and (
-        "spotify.com" in song and "playlist" in song):
-        playlist = Guild.spotify_client.playlist_tracks(song)
-        for track in playlist["items"]:
-            title = ""
+    if "spotify.com" in song:
+        if Guild.spotify_client is None:
+            return None
+        if "playlist" in song:
+            playlist = Guild.spotify_client.playlist_tracks(song)
+            for track in playlist["items"]:
+                title = ""
 
-            for artist in track["track"]["album"]["artists"]:
+                for artist in track["track"]["album"]["artists"]:
+                        title += artist["name"] + " "
+
+                title += "- " + track["track"]["name"]
+
+                track_list.append((title + " AUDIO", track["track"]["id"], title))
+        elif "album" in song:
+            album = Guild.spotify_client.album_tracks(song)
+
+            for track in album["items"]:
+                title = ""
+
+                for artist in track["artists"]:
                     title += artist["name"] + " "
 
-            title += "- " + track["track"]["name"]
+                title += "- " + track["name"]
 
-            track_list.append((title + " AUDIO", track["track"]["id"], title))
-    elif Guild.spotify_client is not None and "spotify.com" in song:
-        track = Guild.spotify_client.track(song)
+                track_list.append((title + " AUDIO", track["id"], title))
+        else:
+            track = Guild.spotify_client.track(song)
 
-        title = ""
+            title = ""
 
-        for artist in track["album"]["artists"]:
-                title += artist["name"] + " "
+            for artist in track["album"]["artists"]:
+                    title += artist["name"] + " "
 
-        title += "- " + track["name"]
+            title += "- " + track["name"]
 
-        track_list.append((title + " AUDIO", track["id"], title))
+            track_list.append((title + " AUDIO", track["id"], title))
     elif "youtube.com" in song:
         downloader = yt_dlp.YoutubeDL({})
 
