@@ -212,12 +212,12 @@ def get_metadata(song):
 
         title = ""
 
-        for artist in track["track"]["album"]["artists"]:
+        for artist in track["album"]["artists"]:
                 title += artist["name"] + " "
 
-        title += "- " + track["track"]["name"]
+        title += "- " + track["name"]
 
-        track_list.append((title + " AUDIO", track["track"]["id"], title))
+        track_list.append((title + " AUDIO", track["id"], title))
     elif "youtube.com" in song:
         downloader = yt_dlp.YoutubeDL({})
 
