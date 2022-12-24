@@ -122,7 +122,7 @@ async def queue(interaction: discord.Interaction):
     nr = 1
 
     for song in guilds[guild].play_queue:
-        msg += str(nr) + ". " + song.split("$")[2] + "\n"
+        msg += str(nr) + ". " + song["title"] + "\n"
         nr += 1
 
     for song in guilds[guild].download_queue:
@@ -145,43 +145,26 @@ async def download(guild):
             break
 
         song = guilds[guild].download_queue[0]
-        cache_dir = "cache/" + song[1]
+        song_path = "cache/" + song[1]
 
-        if not os.path.exists(cache_dir):
-            os.mkdir(cache_dir)
+        await asyncio.to_thread(background_download, song[0], song_path)
 
-        track_nr = 1
-        download_status = set()
-        download_thread = Thread(
-            target = background_download, args = (
-                song[0], cache_dir, download_status))
-        download_thread.start()
+        guilds[guild].play_queue.append({
+            "file": song_path, "title": song[2]})
+        guilds[guild].downloaded_songs.append(song_path)
 
-        while len(download_status) == 0:
-            await asyncio.sleep(0.1)
+        if song_path not in Guild.cached_songs:
+            Guild.cached_songs[song_path] = set()
 
-            for file in os.listdir(cache_dir):
-                separator = file.index("$")
+        # Add this guild to set of guilds that have requested this song
+        Guild.cached_songs[song_path].add(guild)
 
-                if int(file[0:separator]) == track_nr and (
-                        not ".part" in file):
-                    file_path = cache_dir + "/" + file
-                    track_nr += 1
-                    guilds[guild].play_queue.append(file_path)
-                    guilds[guild].downloaded_songs.append(file_path)
+        await guilds[guild].song_ready.acquire()
 
-                    if file_path not in Guild.cached_songs:
-                        Guild.cached_songs[file_path] = set()
-
-                    # Add this guild to set of guilds that have requested this song
-                    Guild.cached_songs[file_path].add(guild)
-
-                    await guilds[guild].song_ready.acquire()
-
-                    try:
-                        guilds[guild].song_ready.notify()
-                    finally:
-                        guilds[guild].song_ready.release()
+        try:
+            guilds[guild].song_ready.notify()
+        finally:
+            guilds[guild].song_ready.release()
 
         guilds[guild].download_queue.pop(0)
 
@@ -208,7 +191,7 @@ def get_metadata(song):
 
                 title += "- " + track["track"]["name"]
 
-                track_list.append((title + " AUDIO", track["track"]["id"], title))
+                track_list.append(title + " AUDIO", track["track"]["id"], title)
         elif "album" in song:
             album = Guild.spotify_client.album_tracks(song)
 
@@ -238,10 +221,14 @@ def get_metadata(song):
         try:
             metadata = downloader.extract_info(
                 song, download = False, process = False)
-            
-            track_list.append(song, metadata["id"], metadata["title"])
         except:
             return None
+
+        if "entries" in metadata:
+            for entry in metadata["entries"]:
+                track_list.append((entry["url"], entry["id"], entry["title"]))
+        else:
+            track_list.append((song, metadata["id"], metadata["title"]))
     
     # Song is not a YouTube or Spotify URL, use search or generic downloader
     else:
@@ -250,19 +237,20 @@ def get_metadata(song):
         try:
             metadata = downloader.extract_info(song, download = False)
 
-            track_list.append(song, metadata["id"], metadata["title"])
         except:
             return None
 
+        result = metadata["entries"][0]
+        track_list.append((song, result["id"], result["title"]))
+
     return track_list
 
-def background_download(song, cache_dir, download_status):
+def background_download(song, location):
     downloader = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "outtmpl": cache_dir + "/%(autonumber)s$%(id)s$%(title)s",
-        "default_search": "ytsearch"})
+        "format": "bestaudio", "outtmpl": location,
+        "default_search": "ytsearch", "noplaylist": True})
     
     downloader.download(song)
-    download_status.add(0)
 
 async def playback(voice, channel):
     guild = voice.guild
@@ -276,9 +264,9 @@ async def playback(voice, channel):
             break
             
         song = guilds[guild].play_queue.pop(0)
-        voice.play(discord.FFmpegPCMAudio(song))
+        voice.play(discord.FFmpegPCMAudio(song["file"]))
         
-        await channel.send("Now playing: " + song.split("$")[2])
+        await channel.send("Now playing: " + song["title"])
 
         while not guilds[guild].skipped and guilds[guild].active and (
                     voice.is_playing() or guilds[guild].paused):
