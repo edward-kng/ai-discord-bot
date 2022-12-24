@@ -11,7 +11,6 @@ class Guild:
         self.skipped = False
         self.paused = False
         self.active = True
-        self.lock = Lock()
         self.download_ready = Condition()
         self.song_ready = Condition()
         self.download_task = None
