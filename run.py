@@ -1,6 +1,6 @@
 import os
 from commands import *
-from guild import Guild
+from session import Session
 
 def main():
     try:
@@ -22,7 +22,7 @@ def main():
 
         SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
         SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-        Guild.spotify_client = spotipy.Spotify(
+        Session.spotify_client = spotipy.Spotify(
             client_credentials_manager
             = spotipy.oauth2.SpotifyClientCredentials(
                 client_id = SPOTIPY_CLIENT_ID, client_secret = SPOTIPY_CLIENT_SECRET)
