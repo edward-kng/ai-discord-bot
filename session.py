@@ -47,8 +47,11 @@ class Session:
 
         msg = "Added to queue: "
 
-        for metadata in metadata_list:
-            msg += "\n" + metadata["title"]
+        for i in range(3):
+            msg += "\n" + metadata_list[i]["title"]
+
+        if len(metadata_list) > 3:
+            msg += "\n..."
 
         await self._feedback_channel.send(msg)
 

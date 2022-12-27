@@ -78,11 +78,18 @@ async def queue(interaction: discord.Interaction):
     guild = interaction.guild
     
     if guild in sessions:
-        msg = "Queue:"
         song_queue = sessions[guild].get_song_queue()
 
-        for i in range(len(song_queue)):
-            msg += "\n" + str(i + 1) + ". " + song_queue[i]["title"]
+        if len(song_queue) > 10:
+            msg = "Next 10 song in queue:"
+
+            for i in range(10):
+                msg += "\n" + str(i + 1) + ". " + song_queue[i]["title"]
+        else:
+            msg = "Queue:"
+
+            for i in range(len(song_queue)):
+                msg += "\n" + str(i + 1) + ". " + song_queue[i]["title"]
 
         await interaction.response.send_message(msg)
     else:
