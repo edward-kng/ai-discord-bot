@@ -61,6 +61,7 @@ class Session:
 
     async def skip(self):
         self._skipped = True
+        self._paused = False
 
     async def quit(self):
         if self._voice.is_playing():
