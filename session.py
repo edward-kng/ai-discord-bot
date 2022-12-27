@@ -51,7 +51,7 @@ class Session:
 
         msg = "Added to queue: "
 
-        for i in range(3):
+        for i in range(min(3, len(metadata_list))):
             msg += "\n" + metadata_list[i]["title"]
 
         if len(metadata_list) > 3:
