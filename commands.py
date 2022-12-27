@@ -17,7 +17,7 @@ async def play(interaction: discord.Interaction, song: str):
         
         return
 
-    await interaction.response.send_message("Searching for song...")
+    await interaction.response.send_message(song)
 
     if guild not in sessions:
         await user_voice.channel.connect()
