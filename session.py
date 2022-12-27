@@ -1,6 +1,7 @@
 import asyncio
 import discord
 import os
+import random
 import yt_dlp
 
 class Session:
@@ -27,7 +28,7 @@ class Session:
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
 
-    async def enqueue(self, song):
+    async def enqueue(self, song, shuffle = False):
         metadata_list = await asyncio.to_thread(Session.get_metadata, song)
 
         if metadata_list is None:
@@ -35,6 +36,9 @@ class Session:
                 "Error: could not find song or invalid URL!")
 
             return
+
+        if shuffle:
+            random.shuffle(metadata_list)
 
         self._download_queue.extend(metadata_list)
 

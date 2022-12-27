@@ -28,6 +28,26 @@ async def play(interaction: discord.Interaction, song: str):
     await sessions[guild].enqueue(song)
 
 @bot.tree.command()
+async def shuffle(interaction: discord.Interaction, song: str):
+    user_voice = interaction.user.voice
+    guild = interaction.guild
+
+    if not user_voice and guild not in sessions:
+        await interaction.response.send_message("Join a voice channel first!")
+        
+        return
+
+    await interaction.response.send_message(song)
+
+    if guild not in sessions:
+        await user_voice.channel.connect()
+
+        voice = discord.utils.get(bot.voice_clients, guild = guild)
+        sessions[guild] = Session(interaction.channel, guild, voice)
+
+    await sessions[guild].enqueue(song, True)
+
+@bot.tree.command()
 async def skip(interaction: discord.Interaction):
     guild = interaction.guild
 
