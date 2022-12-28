@@ -118,7 +118,7 @@ class Session:
             song_path = "cache/" + song["id"]
 
             await asyncio.to_thread(
-                Session.download_song, song["src"], song_path)
+                Session.download_song, song, song_path)
 
             self._play_queue.append({
                 "file": song_path, "title": song["title"]})
@@ -156,43 +156,18 @@ class Session:
                 playlist = Session.spotify_client.playlist_tracks(song)
                 
                 for track in playlist["items"]:
-                    title = ""
-
-                    for artist in track["track"]["album"]["artists"]:
-                            title += artist["name"] + " "
-
-                    title += "- " + track["track"]["name"]
-
-                    track_list.append({
-                        "src": title + " AUDIO",
-                        "id": track["track"]["id"], "title": title})
+                    track_list.append(
+                        Session.get_spotify_track_metadata(track["track"]))
             elif "album" in song:
                 album = Session.spotify_client.album_tracks(song)
 
                 for track in album["items"]:
-                    title = ""
-
-                    for artist in track["artists"]:
-                        title += artist["name"] + " "
-
-                    title += "- " + track["name"]
-
-                    track_list.append({
-                        "src": title + " AUDIO",
-                        "id": track["id"], "title": title})
+                    track_list.append(
+                        Session.get_spotify_track_metadata(track))
             else:
                 track = Session.spotify_client.track(song)
 
-                title = ""
-
-                for artist in track["album"]["artists"]:
-                        title += artist["name"] + " "
-
-                title += "- " + track["name"]
-
-                track_list.append({
-                        "src": title + " AUDIO",
-                        "id": track["id"], "title": title})
+                track_list.append(Session.get_spotify_track_metadata(track))
         elif "youtube.com" in song:
             ytdl = yt_dlp.YoutubeDL({})
 
@@ -206,13 +181,14 @@ class Session:
                 for entry in metadata["entries"]:
                     track_list.append({
                         "src": entry["url"], "id": entry["id"],
-                        "title": entry["title"]})
+                        "title": entry["title"], "type": "youtube_video"})
             else:
                 track_list.append({
                         "src": song, "id": metadata["id"],
-                        "title": metadata["title"]})
+                        "title": metadata["title"], "type": "youtube_video"})
         
-        # Song is not a YouTube or Spotify URL, use search or generic downloader
+        # Song is not a YouTube or Spotify URL,
+        # use search or generic downloader
         else:
             ytdl = yt_dlp.YoutubeDL({"default_search": "ytsearch"})
 
@@ -229,12 +205,49 @@ class Session:
 
         return track_list
 
+    def get_spotify_track_metadata(track):
+        metadata = {
+            "src": track["artists"][0]["name"],
+            "title": track["artists"][0]["name"]}
+
+        for i in range(1, len(track["artists"])):
+            metadata["title"] += ", " + track["artists"][i]["name"]
+            metadata["src"] += " " + track["artists"][i]["name"]
+
+        metadata["title"] += " - " + track["name"]
+
+        metadata["src"] += " " + track["name"] + " audio"
+
+        metadata["type"] = "spotify_track"
+        metadata["id"] = "spotify_" + track["id"]
+        metadata["track_title"] = track["name"]
+
+        return metadata
+
     def download_song(song, location):
         ytdl = yt_dlp.YoutubeDL({
             "format": "bestaudio", "outtmpl": location,
             "default_search": "ytsearch", "noplaylist": True})
 
-        ytdl.download(song)
+        if "type" in song and song["type"] == "spotify_track":
+            metadata = ytdl.extract_info(song["src"], download = False)
+
+            """
+            For some reason, YouTube search sometimes returns completely
+            irrelevant videos when searching for a slightly less known song and
+            the word 'audio' is added. To mitigate this, we check whether the
+            title resembles the Spotify title, and if not we download again,
+            without searching for 'audio'.
+            """
+
+            if song["track_title"].lower() not in metadata[
+                "entries"][0]["title"].lower():
+                ytdl.download(song["src"].replace(" audio", ""))
+            else:
+                ytdl.download(song["src"])
+        
+        else:
+            ytdl.download(song["src"])
 
     def pause_resume(self):
         self._paused = not self._paused
