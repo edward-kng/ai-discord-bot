@@ -10,19 +10,28 @@ class Spotify:
                 return None
         
         if "playlist" in url:
-            playlist = Spotify.spotify_client.playlist_tracks(url)
+            try:
+                playlist = Spotify.spotify_client.playlist_tracks(url)
+            except:
+                return None
             
             for track in playlist["items"]:
                 track_list.append(
                     Spotify._get_track_metadata(track["track"]))
         elif "album" in url:
-            album = Spotify.spotify_client.album_tracks(url)
+            try:
+                album = Spotify.spotify_client.album_tracks(url)
+            except:
+                return None
 
             for track in album["items"]:
                 track_list.append(
                     Spotify._get_track_metadata(track))
         else:
-            track = Spotify.spotify_client.track(url)
+            try:
+                track = Spotify.spotify_client.track(url)
+            except:
+                return None
 
             track_list.append(Spotify._get_track_metadata(track))
 
