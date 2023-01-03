@@ -20,11 +20,23 @@ A Discord bot that plays music from YouTube, SoundCloud, Spotify and others.
 
 ## Setup
 
-1. Install Python 3 and the required dependencies above.
-2. Clone the repo and `cd` into it.
-2. Create an application and bot on the [Discord Developer](https://discord.com/developers) site and add it to your server.
-3. Copy your bot's token from the Discord Developer site.
-4. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file containing:
+1. Make sure you have Python 3 installed.
+2. Clone the repository and `cd` into it.
+3. Create a virtual environment using:
+
+```
+python3 -m venv .venv
+```
+
+4. Install the dependencies using:
+
+```
+source .venv/bin/activate && python3 -m pip install -r requirements.txt
+```
+
+5. Create an application and bot on the [Discord Developer](https://discord.com/developers) site and add it to your server.
+6. Copy your bot's token from the Discord Developer site.
+7. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file containing:
 
 ```
 DISCORD_BOT_TOKEN=<your token>
@@ -33,7 +45,7 @@ DISCORD_BOT_TOKEN=<your token>
 6. Run the bot with:
 
 ```
-python3 -m discord_music_bot
+sh run.sh
 ```
 
 ### Enabling Spotify support
