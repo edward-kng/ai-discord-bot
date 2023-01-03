@@ -1,24 +1,20 @@
 import asyncio
 import discord
-import os
 import random
 from discord_music_bot.downloaders.spotify import Spotify
 from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
 
 class Session:
-    cached_songs = {}
-
     def __init__(self, feedback_channel, guild, voice):
         self._feedback_channel = feedback_channel
         self._guild = guild
         self._voice = voice
 
         self._downloader = asyncio.create_task(self._start_downloader())
-        self._playback = asyncio.create_task(self._start_playback())
+        self._player = asyncio.create_task(self._start_playback())
         self._idle_timer = asyncio.create_task(self._start_idle_timer())
 
         self._download_queue = []
-        self._downloaded_songs = []
         self._play_queue = []
 
         self._active = True
@@ -28,8 +24,8 @@ class Session:
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
 
-    async def enqueue(self, song, shuffle = False):
-        metadata_list = await asyncio.to_thread(Session._get_metadata, song)
+    async def enqueue(self, query, shuffle = False):
+        metadata_list = await asyncio.to_thread(Session._get_metadata, query)
 
         if metadata_list is None:
             await self._feedback_channel.send(
@@ -74,7 +70,7 @@ class Session:
             self._download_ready.notify()
 
         await asyncio.gather(
-            self._downloader, self._playback, self._idle_timer)
+            self._downloader, self._player, self._idle_timer)
 
     def get_song_queue(self):
         return self._play_queue + self._download_queue
@@ -103,32 +99,17 @@ class Session:
                 break
 
             song = self._download_queue[0]
-            song_path = "cache/" + song["id"]
 
-            await asyncio.to_thread(
-                Session._download_song, song, song_path)
+            if "audio" not in song:
+                song["audio"] = await asyncio.to_thread(
+                    Session._get_audio, song)
 
-            self._play_queue.append({
-                "file": song_path, "title": song["title"]})
-            self._downloaded_songs.append(song_path)
-
-            if song_path not in Session.cached_songs:
-                Session.cached_songs[song_path] = set()
-
-            # Add this guild to set of guilds that have requested this song
-            Session.cached_songs[song_path].add(self._guild)
+            self._play_queue.append(song)
 
             async with self._playback_ready:
                 self._playback_ready.notify()
 
             self._download_queue.pop(0)
-
-        for song in self._downloaded_songs:
-            Session.cached_songs[song].remove(self._guild)
-
-            # If no other guild has requested this song, delete it from cache
-            if len(Session.cached_songs[song]) == 0:
-                os.remove(song)
 
     def _get_metadata(query):
         if "spotify.com" in query:
@@ -136,11 +117,11 @@ class Session:
         
         return YouTubeGeneric.get_metadata(query)
 
-    def _download_song(song, location):
-        if song["type"] == "song_spotify":
-            Spotify.download(song, location)
-        elif song["type"] == "song_youtube_generic":
-            YouTubeGeneric.download(song, location)
+    def _get_audio(song):
+        if song["type"] == "spotify":
+            return Spotify.get_audio(song)
+        elif song["type"] == "youtube_generic":
+            return YouTubeGeneric.get_audio(song)
 
     def pause_resume(self):
         self._paused = not self._paused
@@ -160,16 +141,17 @@ class Session:
                 break
                 
             song = self._play_queue.pop(0)
-            self._voice.play(discord.FFmpegPCMAudio(song["file"]))
+            self._voice.play(discord.FFmpegPCMAudio(song["audio"]))
             
             await self._feedback_channel.send("Now playing: " + song["title"])
 
-            while not self._skipped and self._active and (
-                        self._voice.is_playing() or self._paused):
+            while self._active and (self._voice.is_playing() or self._paused):
                 await asyncio.sleep(0.1)
             
-            if self._skipped:
-                self._voice.stop()
-                self._skipped = False
+                if self._skipped:
+                    self._voice.stop()
+                    self._skipped = False
+
+                    break
                 
             await asyncio.sleep(1)

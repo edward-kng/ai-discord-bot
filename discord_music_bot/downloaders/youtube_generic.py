@@ -17,18 +17,16 @@ class YouTubeGeneric:
             if "entries" in metadata:
                 for entry in metadata["entries"]:
                     track_list.append({
-                        "query": entry["url"], "id": "youtube_" + entry["id"],
-                        "title": entry["title"],
-                        "type": "song_youtube_generic"})
+                        "query": entry["url"], "title": entry["title"],
+                        "type": "youtube_generic"})
             else:
                 track_list.append({
-                        "query": query, "id": "youtube_" + metadata["id"],
-                        "title": metadata["title"],
-                        "type": "song_youtube_generic"})
+                        "query": query, "title": metadata["title"],
+                        "type": "youtube_generic"})
         
         # Query is not a YouTube URL, use search or generic downloader
         else:
-            ytdl = yt_dlp.YoutubeDL({"default_search": "ytsearch"})
+            ytdl = yt_dlp.YoutubeDL({"format": "best", "default_search": "ytsearch"})
 
             try:
                 metadata = ytdl.extract_info(query, download = False)
@@ -36,17 +34,20 @@ class YouTubeGeneric:
             except:
                 return None
 
-            result = metadata["entries"][0]
+            if "entries" in metadata:
+                metadata = metadata["entries"][0]
+            
             track_list.append({
-                        "query": query, "id": "generic_" + result["id"],
-                        "title": result["title"],
-                        "type": "song_youtube_generic"})
+                        "query": query, "audio": metadata["url"],
+                        "title": metadata["title"], "type": "youtube_generic"})
 
         return track_list
 
-    def download(song, location):
+    def get_audio(song):
         ytdl = yt_dlp.YoutubeDL({
-            "format": "bestaudio", "outtmpl": location,
-            "default_search": "ytsearch", "noplaylist": True})
+            "format": "best", "default_search": "ytsearch",
+            "noplaylist": True})
 
-        ytdl.download(song["query"])
+        metadata = ytdl.extract_info(song["query"], download = False)
+        
+        return metadata["url"]

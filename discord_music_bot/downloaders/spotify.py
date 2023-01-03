@@ -51,18 +51,17 @@ class Spotify:
         # Add 'audio' to query to avoid downloading music videos
         metadata["query"] += " " + track["name"] + " audio"
 
-        metadata["type"] = "song_spotify"
-        metadata["id"] = "spotify_" + track["id"]
+        metadata["type"] = "spotify"
         metadata["track_title"] = track["name"]
 
         return metadata
 
-    def download(song, location):
+    def get_audio(song):
         ytdl = yt_dlp.YoutubeDL({
-            "format": "bestaudio", "outtmpl": location,
-            "default_search": "ytsearch", "noplaylist": True})
+            "format": "bestaudio", "default_search": "ytsearch",
+            "noplaylist": True})
 
-        metadata = ytdl.extract_info(song["query"], download = False)
+        metadata = ytdl.extract_info(song["query"], download = False)["entries"][0]
 
         """
         For some reason, YouTube search sometimes returns completely
@@ -72,8 +71,8 @@ class Spotify:
         without searching for 'audio'.
         """
 
-        if song["track_title"].lower() not in metadata[
-            "entries"][0]["title"].lower():
-            ytdl.download(song["query"].replace(" audio", ""))
-        else:
-            ytdl.download(song["query"])
+        if song["track_title"].lower() not in metadata["title"].lower():
+            metadata = ytdl.extract_info(
+                song["query"].replace(" audio", ""), download = False)["entries"][0]
+        
+        return metadata["url"]

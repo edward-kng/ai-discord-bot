@@ -7,4 +7,5 @@ class Bot(discord.Client):
 
     async def on_ready(self):
         print(str(self.user) + " connected!")
+        
         await self.tree.sync()
