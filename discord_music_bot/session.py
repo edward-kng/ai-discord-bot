@@ -112,6 +112,10 @@ class Session:
             self._download_queue.pop(0)
 
     def _get_metadata(query):
+        if isinstance(query, discord.Attachment):
+            return [{"query": query, "audio": query.url,
+                    "title": query.filename, "type": "file"}]
+
         if "spotify.com" in query:
             return Spotify.get_metadata(query)
         
@@ -120,7 +124,8 @@ class Session:
     def _get_audio(song):
         if song["type"] == "spotify":
             return Spotify.get_audio(song)
-        elif song["type"] == "youtube_generic":
+        
+        if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
 
     def pause_resume(self):
