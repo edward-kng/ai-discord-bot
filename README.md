@@ -42,7 +42,7 @@ source .venv/bin/activate && python3 -m pip install -r requirements.txt
 DISCORD_BOT_TOKEN=<your token>
 ```
 
-6. Run the bot with:
+8. Run the bot with:
 
 ```
 sh run.sh
