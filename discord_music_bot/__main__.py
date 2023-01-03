@@ -1,6 +1,6 @@
 import os
-from commands import *
-from spotify import Spotify
+from discord_music_bot.commands import *
+from discord_music_bot.downloaders.spotify import Spotify
 
 def main():
     try:

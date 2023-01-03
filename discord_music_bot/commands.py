@@ -1,6 +1,6 @@
 import discord
-from bot import Bot
-from session import Session
+from discord_music_bot.bot import Bot
+from discord_music_bot.session import Session
 
 intents = discord.Intents.default()
 intents.message_content = True

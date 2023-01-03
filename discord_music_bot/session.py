@@ -2,8 +2,8 @@ import asyncio
 import discord
 import os
 import random
-from spotify import Spotify
-from youtube_generic import YouTubeGeneric
+from discord_music_bot.downloaders.spotify import Spotify
+from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
 
 class Session:
     cached_songs = {}
