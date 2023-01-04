@@ -13,7 +13,7 @@ A Discord bot that plays music from YouTube, SoundCloud, Spotify and others.
 - `/leave` - leave the voice chat
 - `/say <message>` - send a message in the chat
 
-## Pip dependencies
+## Pip Dependencies
 - [discord.py](https://github.com/Rapptz/discord.py)
 - [yt_dlp](https://github.com/yt-dlp/yt-dlp)
 - [python-dotenv](https://github.com/theskumar/python-dotenv) (optional)
@@ -52,7 +52,7 @@ DISCORD_BOT_TOKEN=<your token>
 sh run.sh
 ```
 
-### Enabling Spotify support
+### Enabling Spotify Support
 
 1. Install `spotipy` using:
 
