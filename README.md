@@ -35,9 +35,12 @@ python3 -m venv .venv
 source .venv/bin/activate && python3 -m pip install -r requirements.txt
 ```
 
-5. Create an application and bot on the [Discord Developer](https://discord.com/developers) site and add it to your server.
+5. Create an application and bot on the
+ [Discord Developer](https://discord.com/developers) site and add it to your
+ server.
 6. Copy your bot's token from the Discord Developer site.
-7. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file (requires `python-dotenv`) containing:
+7. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or
+ by creating a `.env` file (requires `python-dotenv`) containing:
 
 ```
 DISCORD_BOT_TOKEN=<your token>
@@ -57,7 +60,8 @@ sh run.sh
 source .venv/bin/activate && python3 -m pip install spotipy
 ```
 
-2. Create an application on the [Spotify for Developers](https://developer.spotify.com/) site.
+2. Create an application on the 
+ [Spotify for Developers](https://developer.spotify.com/) site.
 3. Copy your app's client ID and client secret.
 4. Create the following environment variables:
 
@@ -68,4 +72,6 @@ SPOTIPY_CLIENT_SECRET=<your client secret>
 
 ## Notes
 
-For technical and legal reasons, the bot does not download any songs from Spotify directly. Instead, the bot grabs each song's metadata using the Spotify Web API and downloads an equivalent audio file from YouTube.
+For technical and legal reasons, the bot does not download any songs from
+ Spotify directly. Instead, the bot grabs each song's metadata using the
+ Spotify Web API and downloads an equivalent audio file from YouTube.
