@@ -1,6 +1,8 @@
 import yt_dlp
 
+
 class YouTubeGeneric:
+    @staticmethod
     def get_metadata(query):
         track_list = []
 
@@ -10,7 +12,7 @@ class YouTubeGeneric:
 
             try:
                 metadata = ytdl.extract_info(
-                    query, download = False, process = False)
+                    query, download=False, process=False)
             except:
                 return None
 
@@ -26,10 +28,11 @@ class YouTubeGeneric:
         
         # Query is not a YouTube URL, use search or generic downloader
         else:
-            ytdl = yt_dlp.YoutubeDL({"format": "best", "default_search": "ytsearch"})
+            ytdl = yt_dlp.YoutubeDL(
+                {"format": "best", "default_search": "ytsearch"})
 
             try:
-                metadata = ytdl.extract_info(query, download = False)
+                metadata = ytdl.extract_info(query, download=False)
 
             except:
                 return None
@@ -39,15 +42,17 @@ class YouTubeGeneric:
             
             track_list.append({
                         "query": query, "audio": metadata["url"],
-                        "title": metadata["title"], "type": "youtube_generic"})
+                        "title": metadata["title"],
+                        "type": "youtube_generic"})
 
         return track_list
 
+    @staticmethod
     def get_audio(song):
         ytdl = yt_dlp.YoutubeDL({
             "format": "best", "default_search": "ytsearch",
             "noplaylist": True})
 
-        metadata = ytdl.extract_info(song["query"], download = False)
+        metadata = ytdl.extract_info(song["query"], download=False)
         
         return metadata["url"]

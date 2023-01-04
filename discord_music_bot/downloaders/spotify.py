@@ -1,13 +1,15 @@
 import yt_dlp
 
+
 class Spotify:
     spotify_client = None
 
+    @staticmethod
     def get_metadata(url):
         track_list = []
 
         if Spotify.spotify_client is None:
-                return None
+            return None
         
         if "playlist" in url:
             try:
@@ -37,6 +39,7 @@ class Spotify:
 
         return track_list
 
+    @staticmethod
     def _get_track_metadata(track):
         metadata = {
             "query": track["artists"][0]["name"],
@@ -56,12 +59,14 @@ class Spotify:
 
         return metadata
 
+    @staticmethod
     def get_audio(song):
         ytdl = yt_dlp.YoutubeDL({
             "format": "bestaudio", "default_search": "ytsearch",
             "noplaylist": True})
 
-        metadata = ytdl.extract_info(song["query"], download = False)["entries"][0]
+        metadata = ytdl.extract_info(
+            song["query"], download=False)["entries"][0]
 
         """
         For some reason, YouTube search sometimes returns completely
@@ -73,6 +78,7 @@ class Spotify:
 
         if song["track_title"].lower() not in metadata["title"].lower():
             metadata = ytdl.extract_info(
-                song["query"].replace(" audio", ""), download = False)["entries"][0]
+                song["query"].replace(
+                    " audio", ""), download=False)["entries"][0]
         
         return metadata["url"]

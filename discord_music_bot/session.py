@@ -97,6 +97,7 @@ class Session:
 
             self._download_queue.pop(0)
 
+    @staticmethod
     def _get_metadata(query):
         if isinstance(query, discord.Attachment):
             return [{"query": query, "audio": query.url,
@@ -107,6 +108,7 @@ class Session:
         
         return YouTubeGeneric.get_metadata(query)
 
+    @staticmethod
     def _get_audio(song):
         if song["type"] == "spotify":
             return Spotify.get_audio(song)
