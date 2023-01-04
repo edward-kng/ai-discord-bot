@@ -51,7 +51,12 @@ sh run.sh
 
 ### Enabling Spotify support
 
-1. Install `spotipy`.
+1. Install `spotipy` using:
+
+```
+source .venv/bin/activate && python3 -m pip install spotipy
+```
+
 2. Create an application on the [Spotify for Developers](https://developer.spotify.com/) site.
 3. Copy your app's client ID and client secret.
 4. Create the following environment variables:
