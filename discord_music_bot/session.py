@@ -4,6 +4,7 @@ import random
 from discord_music_bot.downloaders.spotify import Spotify
 from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
 
+
 class Session:
     def __init__(self, feedback_channel, guild, voice):
         self._feedback_channel = feedback_channel
@@ -12,7 +13,6 @@ class Session:
 
         self._downloader = asyncio.create_task(self._start_downloader())
         self._player = asyncio.create_task(self._start_playback())
-        self._idle_timer = asyncio.create_task(self._start_idle_timer())
 
         self._download_queue = []
         self._play_queue = []
@@ -70,24 +70,10 @@ class Session:
             self._download_ready.notify()
 
         await asyncio.gather(
-            self._downloader, self._player, self._idle_timer)
+            self._downloader, self._player)
 
     def get_song_queue(self):
         return self._play_queue + self._download_queue
-
-    async def _start_idle_timer(self):
-        while self._active:
-            idle_secs = 0
-
-            await asyncio.sleep(0.1)
-
-            while not self._voice.is_playing() and self._active:
-                await asyncio.sleep(1)
-                
-                idle_secs += 1
-
-                if idle_secs >= 300:
-                    await self.quit()
 
     async def _start_downloader(self):
         while self._active:
@@ -135,6 +121,12 @@ class Session:
             self._voice.pause()
         else:
             self._voice.resume()
+
+    def is_active(self):
+        return self._active
+
+    def is_playing(self):
+        return self._voice.is_playing()
 
     async def _start_playback(self):
         while self._active:
