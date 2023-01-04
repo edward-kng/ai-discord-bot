@@ -2,6 +2,7 @@ import os
 from discord_music_bot.commands import *
 from discord_music_bot.downloaders.spotify import Spotify
 
+
 def main():
     try:
         from dotenv import load_dotenv
@@ -18,9 +19,9 @@ def main():
         SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
         Spotify.spotify_client = spotipy.Spotify(
             client_credentials_manager
-            = spotipy.oauth2.SpotifyClientCredentials(
-                client_id = SPOTIPY_CLIENT_ID,
-                client_secret = SPOTIPY_CLIENT_SECRET))
+            =spotipy.oauth2.SpotifyClientCredentials(
+                client_id=SPOTIPY_CLIENT_ID,
+                client_secret=SPOTIPY_CLIENT_SECRET))
     except ImportError:
         # spotipy is not installed, ignore
         pass
@@ -28,6 +29,7 @@ def main():
     TOKEN = os.getenv('DISCORD_BOT_TOKEN')
     
     bot.run(TOKEN)
+
 
 if __name__ == "__main__":
     main()
