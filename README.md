@@ -37,7 +37,7 @@ source .venv/bin/activate && python3 -m pip install -r requirements.txt
 
 5. Create an application and bot on the [Discord Developer](https://discord.com/developers) site and add it to your server.
 6. Copy your bot's token from the Discord Developer site.
-7. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file containing:
+7. Create the `DISCORD_BOT_TOKEN` environment variable in your shell config or by creating a `.env` file (requires `python-dotenv`) containing:
 
 ```
 DISCORD_BOT_TOKEN=<your token>
