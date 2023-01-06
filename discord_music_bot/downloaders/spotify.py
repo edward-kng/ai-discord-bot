@@ -66,7 +66,7 @@ class Spotify:
             "noplaylist": True})
 
         metadata = ytdl.extract_info(
-            song["query"], download=False)["entries"][0]
+            song["query"], download=False)
 
         """
         For some reason, YouTube search sometimes returns completely
@@ -76,9 +76,12 @@ class Spotify:
         without searching for 'audio'.
         """
 
-        if song["track_title"].lower() not in metadata["title"].lower():
+        if len(metadata["entries"]) == 0 or song["track_title"].lower() not in metadata["entries"][0]["title"].lower():
             metadata = ytdl.extract_info(
                 song["query"].replace(
-                    " audio", ""), download=False)["entries"][0]
+                    " audio", ""), download=False)
         
-        return metadata["url"]
+        if len(metadata["entries"]) > 0:
+            return metadata["entries"][0]["url"]
+
+        return None
