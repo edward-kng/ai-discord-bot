@@ -152,5 +152,19 @@ async def queue(interaction: discord.Interaction):
 
 
 @bot.tree.command()
+async def now_playing(interaction: discord.Interaction):
+    guild = interaction.guild
+
+    if guild in sessions:
+        song = sessions[guild].get_now_playing()
+
+        if song is not None:
+            await interaction.response.send_message("Now playing: " + song)
+            return
+
+    await interaction.response.send_message("No song playing!")
+
+
+@bot.tree.command()
 async def say(interaction: discord.Interaction, msg: str):
     await interaction.response.send_message(msg)

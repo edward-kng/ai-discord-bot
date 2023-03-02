@@ -20,6 +20,7 @@ class Session:
         self._active = True
         self._paused = False
         self._skipped = False
+        self._now_playing = None
 
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
@@ -130,6 +131,12 @@ class Session:
     def is_playing(self):
         return self._voice.is_playing()
 
+    def get_now_playing(self):
+        if self._voice.is_playing():
+            return self._now_playing
+
+        return None
+
     async def _start_playback(self):
         while self._active:
             if len(self._play_queue) == 0:
@@ -146,6 +153,7 @@ class Session:
                 options='-vn'))
             
             await self._feedback_channel.send("Now playing: " + song["title"])
+            self._now_playing = song["title"]
 
             while self._active and (self._voice.is_playing() or self._paused):
                 await asyncio.sleep(0.1)
@@ -155,5 +163,7 @@ class Session:
                     self._skipped = False
 
                     break
-                
+
+            self._now_playing = None
+
             await asyncio.sleep(1)
