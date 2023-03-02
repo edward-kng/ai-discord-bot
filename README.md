@@ -11,6 +11,7 @@ A Discord bot that plays music from YouTube, SoundCloud, Spotify and others.
 - `/resume` - resume current song
 - `/queue` - show song queue
 - `/leave` - leave the voice chat
+- `/now_playing` - show current song
 - `/say <message>` - send a message in the chat
 
 ## Pip Dependencies
