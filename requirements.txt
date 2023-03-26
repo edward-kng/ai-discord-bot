@@ -1,2 +1,2 @@
-discord.py[voice]
-yt-dlp
+discord.py[voice]>=2.2.2
+yt-dlp>=2023.3.4
