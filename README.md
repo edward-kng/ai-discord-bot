@@ -3,7 +3,8 @@
 A Discord bot that plays music from YouTube, SoundCloud, Spotify and others.
 
 ## Commands
-- `/play <song URL or title>` - play/enqueue a song
+- `/play <song URL or title> [track nr to play from]` - play/enqueue a song/
+playlist
 - `/play_file <file>` - play/enqueue attached music file
 - `/shuffle <playlist URL>` - shuffle and play/enqueue a playlist
 - `/skip` - skip the current song
