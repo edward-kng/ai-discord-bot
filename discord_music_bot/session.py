@@ -25,7 +25,7 @@ class Session:
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
 
-    async def enqueue(self, query, shuffle=False):
+    async def enqueue(self, query, shuffle=False, pos=0):
         metadata_list = await asyncio.to_thread(Session._get_metadata, query)
 
         if metadata_list is None:
@@ -33,6 +33,8 @@ class Session:
                 "Error: could not find song or invalid URL!")
 
             return
+
+        metadata_list = metadata_list[pos:]
 
         if shuffle:
             random.shuffle(metadata_list)

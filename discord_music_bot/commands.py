@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import typing
 from discord_music_bot.bot import Bot
 from discord_music_bot.idle_timer import start_idle_timer
 from discord_music_bot.session import Session
@@ -12,7 +13,9 @@ idle_timers = set()
 
 
 @bot.tree.command()
-async def play(interaction: discord.Interaction, song: str):
+async def play(
+        interaction: discord.Interaction, song: str, pos: typing.Optional[int]
+):
     user_voice = interaction.user.voice
     guild = interaction.guild
 
@@ -32,7 +35,8 @@ async def play(interaction: discord.Interaction, song: str):
         idle_timers.add(
             asyncio.create_task(start_idle_timer(sessions, guild)))
 
-    await sessions[guild].enqueue(song)
+    if pos:
+        await sessions[guild].enqueue(query=song, pos=pos)
 
 
 @bot.tree.command()
@@ -54,7 +58,7 @@ async def play_file(
         voice = discord.utils.get(bot.voice_clients, guild=guild)
         sessions[guild] = Session(interaction.channel, guild, voice)
 
-    await sessions[guild].enqueue(file)
+    await sessions[guild].enqueue(query=file)
 
 
 @bot.tree.command()
@@ -75,7 +79,7 @@ async def shuffle(interaction: discord.Interaction, song: str):
         voice = discord.utils.get(bot.voice_clients, guild=guild)
         sessions[guild] = Session(interaction.channel, guild, voice)
 
-    await sessions[guild].enqueue(song, True)
+    await sessions[guild].enqueue(query=song, shuffle=True)
 
 
 @bot.tree.command()
