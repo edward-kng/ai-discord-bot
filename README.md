@@ -3,7 +3,7 @@
 A multi-purpose Discord bot that can play music from YouTube, Spotify and 
 SoundCloud, export your chat history and answer questions using GPT.
 
-## Commands
+## Usage
 
 ### Music
 
@@ -22,7 +22,11 @@ playlist
 
 - `/say <message>` - send a message in the chat
 - `/export_history` - export entire chat history to a JSON file
-- `@<bot name> <question>` - ask a question to AI chatbot
+- `/memory <nr of messages>` - set number of previous messages to remember 
+(default 10)
+
+To chat, simply send a message and mention the bot (with @). Reply to continue 
+the conversation.
 
 ## Pip Dependencies
 - [discord.py](https://github.com/Rapptz/discord.py)

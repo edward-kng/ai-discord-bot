@@ -11,15 +11,24 @@ def download(attachment, path):
         file.write(response.content)
 
 
-async def export_history(feedback_channel):
-    history = {"messages": []}
-    threads = []
-    path = "chat-history/" + str(feedback_channel.id)
+async def export_history(channel):
+    path = "chat-history/" + str(channel.id)
 
     if not os.path.exists(path + "/files"):
         os.makedirs(path + "/files")
 
-    async for message in feedback_channel.history(limit=None):
+    history = download_history(channel)
+
+    with open(path + "/history.json", "w") as history_file:
+        json.dump(history, history_file)
+
+
+async def download_history(channel, limit=None, download_images=True):
+    path = "chat-history/" + str(channel.id)
+    history = {"messages": []}
+    threads = []
+
+    async for message in channel.history(limit=limit):
         data = {"sender": {
             "name": message.author.name,
             "id": message.author.id,
@@ -41,16 +50,16 @@ async def export_history(feedback_channel):
 
             data["files"].append(file_data)
 
-            thread = Thread(target=download, args=(attachment, path))
-            threads.append(thread)
-            thread.start()
+            if download_images:
+                thread = Thread(target=download, args=(attachment, path))
+                threads.append(thread)
+                thread.start()
 
         history["messages"].append(data)
-
-    with open(path + "/history.json", "w") as history_file:
-        json.dump(history, history_file)
 
     for thread in threads:
         thread.join()
 
-    await feedback_channel.send("Chat history export finished!")
+    # await feedback_channel.send("Chat history export finished!")
+
+    return history
