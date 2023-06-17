@@ -84,3 +84,17 @@ SPOTIPY_CLIENT_SECRET=<your client secret>
 For technical and legal reasons, the bot does not download any songs from
  Spotify directly. Instead, the bot grabs each song's metadata using the
  Spotify Web API and downloads an equivalent audio file from YouTube.
+
+## Licence
+
+Discord Music Bot  
+Copyright (C) 2022 - present Edward Kang
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see
+[https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).
