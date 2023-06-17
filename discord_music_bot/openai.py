@@ -21,6 +21,7 @@ async def answer(channel, question, name, memory):
 
 def create_completion(chat_history, question, name):
     history_prompt = ""
+    chat_history["messages"].pop(0)
 
     for message in reversed(chat_history["messages"]):
         history_prompt += message["sender"]["name"] + " said: " + message["messageContent"] + "\n"
