@@ -1,3 +1,5 @@
+import os
+
 import discord
 
 from discord_music_bot.bot import Bot
