@@ -179,3 +179,9 @@ async def say(interaction: discord.Interaction, msg: str):
 async def export_history(interaction: discord.Interaction):
     await interaction.response.send_message("Exporting chat history...")
     await export_history(interaction.channel)
+
+@bot.tree.command()
+async def memory(interaction: discord.Interaction, nr: int):
+    bot.chat_memory = nr
+
+    await interaction.response.send_message("Memory set to " + str(nr) + " messages!")

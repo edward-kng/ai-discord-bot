@@ -7,6 +7,7 @@ class Bot(discord.Client):
     def __init__(self, i):
         super().__init__(intents=i)
         self.tree = discord.app_commands.CommandTree(self)
+        self.chat_memory = 10
 
     async def on_ready(self):
         print(str(self.user) + " connected!")
@@ -21,4 +22,4 @@ class Bot(discord.Client):
                 and (await message.channel.fetch_message(message.reference.message_id)).author.id == self.user.id:
             question = message.content.replace(mention, name)
 
-            await message.reply(await answer(message.channel, question, name))
+            await message.reply(await answer(message.channel, question, name, self.chat_memory))

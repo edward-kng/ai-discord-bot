@@ -6,7 +6,7 @@ from os import getenv
 from discord_music_bot.history import export_history
 
 
-async def answer(channel, question, name):
+async def answer(channel, question, name, memory):
     api_key = getenv("OPENAI_API_KEY")
 
     if api_key:
@@ -14,7 +14,7 @@ async def answer(channel, question, name):
     else:
         return "Chat not enabled!"
 
-    chat_history = await export_history(channel, limit=10, download_images=False)
+    chat_history = await export_history(channel, limit=memory, download_images=False)
 
     return await asyncio.to_thread(create_completion, chat_history, question, name)
 
