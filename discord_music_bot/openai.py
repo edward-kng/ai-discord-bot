@@ -22,7 +22,7 @@ async def answer(channel, question, name, memory):
 def create_completion(chat_history, question, name):
     history_prompt = ""
 
-    for message in chat_history["messages"]:
+    for message in reversed(chat_history["messages"]):
         history_prompt += message["sender"]["name"] + " said: " + message["messageContent"] + "\n"
 
     return openai.ChatCompletion.create(
