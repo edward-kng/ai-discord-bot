@@ -11,7 +11,7 @@ def download(attachment, path):
         file.write(response.content)
 
 
-async def get_history(feedback_channel):
+async def export_history(feedback_channel):
     history = {"messages": []}
     threads = []
     path = "chat-history/" + str(feedback_channel.id)
