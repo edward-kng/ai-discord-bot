@@ -4,6 +4,8 @@ A multi-purpose Discord bot that can play music from YouTube, Spotify and SoundC
 
 ## Commands
 
+### Music
+
 - `/play <song URL or title> [track nr to play from]` - play/enqueue a song/
 playlist
 - `/play_file <file>` - play/enqueue attached music file
@@ -14,6 +16,8 @@ playlist
 - `/queue` - show song queue
 - `/leave` - leave the voice chat
 - `/now_playing` - show current song
+
+### Chat
 
 - `/say <message>` - send a message in the chat
 - `/export_history` - export entire chat history to a JSON file
