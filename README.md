@@ -22,6 +22,8 @@ playlist
 
 - `/say <message>` - send a message in the chat
 - `/export_history` - export entire chat history to a JSON file
+- `/memory <nr of messages>` - set number of previous messages to remember 
+(default 10)
 - `@<bot name> <question>` - ask a question to AI chatbot
 
 ## Pip Dependencies
