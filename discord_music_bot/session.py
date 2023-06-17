@@ -115,7 +115,7 @@ class Session:
     @staticmethod
     def _get_audio(song):
         if song["type"] == "spotify":
-            return Spotify.get_audio(song)
+            return get_audio()
         
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
