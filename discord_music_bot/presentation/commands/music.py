@@ -3,9 +3,8 @@ import discord
 import typing
 
 from discord_music_bot.__main__ import app_container
-from discord_music_bot.history import download_history
-from discord_music_bot.idle_timer import start_idle_timer
-from discord_music_bot.session import Session
+from discord_music_bot.domain.idle_timer import start_idle_timer
+from discord_music_bot.domain.session import Session
 
 sessions = {}
 idle_timers = set()

@@ -1,7 +1,7 @@
 from discord_music_bot.__main__ import app_container
 import discord
 
-from discord_music_bot.history import download_history
+from discord_music_bot.domain.history import download_history
 
 
 @app_container.bot.tree.command()
