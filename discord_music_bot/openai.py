@@ -3,7 +3,7 @@ import asyncio
 import openai
 from os import getenv
 
-from discord_music_bot.history import export_history
+from discord_music_bot.history import download_history
 
 
 async def answer(channel, question, name, memory):
@@ -14,7 +14,7 @@ async def answer(channel, question, name, memory):
     else:
         return "Chat not enabled!"
 
-    chat_history = await export_history(channel, limit=memory, download_images=False)
+    chat_history = await download_history(channel, limit=memory, download_images=False)
 
     return await asyncio.to_thread(create_completion, chat_history, question, name)
 
