@@ -1,6 +1,7 @@
 # Discord Music Bot
 
-A multi-purpose Discord bot that can play music from YouTube, Spotify and SoundCloud, export your chat history and more.
+A multi-purpose Discord bot that can play music from YouTube, Spotify and 
+SoundCloud, export your chat history and answer questions using GPT.
 
 ## Commands
 
@@ -21,6 +22,7 @@ playlist
 
 - `/say <message>` - send a message in the chat
 - `/export_history` - export entire chat history to a JSON file
+- `@<bot name> <question>` - ask a question to AI chatbot
 
 ## Pip Dependencies
 - [discord.py](https://github.com/Rapptz/discord.py)
