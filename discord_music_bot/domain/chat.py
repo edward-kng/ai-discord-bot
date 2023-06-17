@@ -2,7 +2,7 @@ import asyncio
 
 import openai
 
-from discord_music_bot.domain.history import download_history
+from .history import download_history
 
 
 def create_completion(chat_history, question, bot):

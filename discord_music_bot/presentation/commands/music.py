@@ -2,9 +2,9 @@ import asyncio
 import discord
 import typing
 
-from discord_music_bot.__main__ import app_container
-from discord_music_bot.domain.idle_timer import start_idle_timer
-from discord_music_bot.domain.session import Session
+from ...__main__ import app_container
+from ...domain.idle_timer import start_idle_timer
+from ...domain.session import Session
 
 sessions = {}
 idle_timers = set()
