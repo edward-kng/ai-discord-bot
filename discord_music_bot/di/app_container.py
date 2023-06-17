@@ -3,7 +3,7 @@ import os
 import discord
 from dotenv import load_dotenv
 
-from discord_music_bot.bot import Bot
+from discord_music_bot.presentation.bot import Bot
 from discord_music_bot.downloaders.spotify import Spotify
 from discord_music_bot.openai import ChatService
 

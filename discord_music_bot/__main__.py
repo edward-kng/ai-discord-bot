@@ -4,7 +4,7 @@ from discord_music_bot.di.app_container import AppContainer
 
 app_container = AppContainer()
 
-from discord_music_bot.commands import *
+from discord_music_bot.presentation.commands import *
 
 
 def main():
