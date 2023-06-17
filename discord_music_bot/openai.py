@@ -1,17 +1,13 @@
 import asyncio
 
 import openai
-from os import getenv
 
 from discord_music_bot.history import download_history
 
 
 async def answer(channel, question, name, memory):
-    api_key = getenv("OPENAI_API_KEY")
 
-    if api_key:
-        openai.api_key = api_key
-    else:
+    if not openai.api_key:
         return "Chat not enabled!"
 
     chat_history = await download_history(channel, limit=memory, download_images=False)
