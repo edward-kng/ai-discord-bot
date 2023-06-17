@@ -26,6 +26,7 @@ class Session:
         self._playback_ready = asyncio.Condition()
 
     async def enqueue(self, query, shuffle=False, pos=0):
+        print("hello")
         metadata_list = await asyncio.to_thread(Session._get_metadata, query)
 
         if metadata_list is None:

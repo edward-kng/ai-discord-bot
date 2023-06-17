@@ -1,7 +1,10 @@
 import os
-from discord_music_bot.commands import *
+from discord_music_bot.di.app_container import AppContainer
 from discord_music_bot.downloaders.spotify import Spotify
 
+app_container = AppContainer()
+
+from discord_music_bot.commands import *
 
 def main():
     try:
@@ -27,8 +30,7 @@ def main():
         pass
 
     TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-    
-    bot.run(TOKEN)
+    app_container.bot.run(TOKEN)
 
 
 if __name__ == "__main__":
