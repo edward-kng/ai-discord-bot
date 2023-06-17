@@ -6,7 +6,7 @@ from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
 
 
 class Session:
-    def __init__(self, feedback_channel, guild, voice):
+    def __init__(self, feedback_channel, guild, voice, spotify):
         self._feedback_channel = feedback_channel
         self._guild = guild
         self._voice = voice
@@ -24,6 +24,8 @@ class Session:
 
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
+
+        self.spotify = spotify
 
     async def enqueue(self, query, shuffle=False, pos=0):
         print("hello")
@@ -112,10 +114,9 @@ class Session:
         
         return YouTubeGeneric.get_metadata(query)
 
-    @staticmethod
-    def _get_audio(song):
+    def _get_audio(self, song):
         if song["type"] == "spotify":
-            return get_audio()
+            return self.spotify.get_audio()
         
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)

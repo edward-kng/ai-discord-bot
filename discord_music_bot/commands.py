@@ -28,7 +28,7 @@ async def play(
         await user_voice.channel.connect()
 
         voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
         idle_timers.add(
             asyncio.create_task(start_idle_timer(sessions, guild)))
@@ -56,7 +56,7 @@ async def play_file(
         await user_voice.channel.connect()
 
         voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
     await sessions[guild].enqueue(query=file)
 
@@ -77,7 +77,7 @@ async def shuffle(interaction: discord.Interaction, song: str):
         await user_voice.channel.connect()
 
         voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
     await sessions[guild].enqueue(query=song, shuffle=True)
 
