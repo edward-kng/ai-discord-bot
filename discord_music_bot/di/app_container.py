@@ -1,16 +1,19 @@
 import os
 
 import discord
+from dotenv import load_dotenv
 
 from discord_music_bot.bot import Bot
 from discord_music_bot.downloaders.spotify import Spotify
+from discord_music_bot.openai import ChatService
 
 
 class AppContainer:
     def __init__(self):
+        load_dotenv()
         intents = discord.Intents.default()
         intents.message_content = True
-        self.bot = Bot(intents)
+        self.bot = Bot(intents, None)
         self.spotify = None
 
         try:
@@ -28,3 +31,6 @@ class AppContainer:
         except ImportError:
             # spotipy is not installed, ignore
             pass
+
+        self.chat_service = ChatService(self.bot)
+        self.bot.chat_service = self.chat_service

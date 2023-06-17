@@ -5,17 +5,7 @@ import openai
 from discord_music_bot.history import download_history
 
 
-async def answer(channel, question, name, memory):
-
-    if not openai.api_key:
-        return "Chat not enabled!"
-
-    chat_history = await download_history(channel, limit=memory, download_images=False)
-
-    return await asyncio.to_thread(create_completion, chat_history, question, name)
-
-
-def create_completion(chat_history, question, name):
+def create_completion(chat_history, question, bot):
     history_prompt = ""
     chat_history["messages"].pop(0)
 
@@ -28,9 +18,24 @@ def create_completion(chat_history, question, name):
             {
                 "role": "system",
                 "content":
-                    "You are a Discord bot that chats with users. Your name is " + name + ". Below is a transcript of "
+                    "You are a Discord bot that chats with users. Your name is " + bot.user.name + ". Below is a transcript of "
                 + "the conversation so far:\n" + history_prompt
             },
             {"role": "user", "content": question}
         ]
     )["choices"][0]["message"]["content"]
+
+
+class ChatService:
+    def __init__(self, name):
+        self.memory = 10
+        self.name = name
+
+    async def answer(self, channel, question):
+
+        if not openai.api_key:
+            return "Chat not enabled!"
+
+        chat_history = await download_history(channel, limit=self.memory, download_images=False)
+
+        return await asyncio.to_thread(create_completion, chat_history, question, self.name)

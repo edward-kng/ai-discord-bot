@@ -182,6 +182,6 @@ async def export_history(interaction: discord.Interaction):
 
 @app_container.bot.tree.command()
 async def memory(interaction: discord.Interaction, nr: int):
-    app_container.bot.chat_memory = nr
+    app_container.chat_service.memory = nr
 
     await interaction.response.send_message("Memory set to " + str(nr) + " messages!")
