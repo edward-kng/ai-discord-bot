@@ -1,8 +1,8 @@
 import asyncio
 import discord
 import random
-from discord_music_bot.downloaders.spotify import Spotify
-from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
+from discord_music_bot.domain.spotify import Spotify
+from discord_music_bot.domain.youtube_generic import YouTubeGeneric
 
 
 class Session:
