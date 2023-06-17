@@ -11,7 +11,7 @@ def download(attachment, path):
         file.write(response.content)
 
 
-async def export_history(feedback_channel):
+async def export_history(feedback_channel, limit=None, download_images=True):
     history = {"messages": []}
     threads = []
     path = "chat-history/" + str(feedback_channel.id)
@@ -19,7 +19,7 @@ async def export_history(feedback_channel):
     if not os.path.exists(path + "/files"):
         os.makedirs(path + "/files")
 
-    async for message in feedback_channel.history(limit=None):
+    async for message in feedback_channel.history(limit=limit):
         data = {"sender": {
             "name": message.author.name,
             "id": message.author.id,
@@ -41,9 +41,10 @@ async def export_history(feedback_channel):
 
             data["files"].append(file_data)
 
-            thread = Thread(target=download, args=(attachment, path))
-            threads.append(thread)
-            thread.start()
+            if download_images:
+                thread = Thread(target=download, args=(attachment, path))
+                threads.append(thread)
+                thread.start()
 
         history["messages"].append(data)
 
@@ -53,4 +54,6 @@ async def export_history(feedback_channel):
     for thread in threads:
         thread.join()
 
-    await feedback_channel.send("Chat history export finished!")
+    # await feedback_channel.send("Chat history export finished!")
+
+    return history
