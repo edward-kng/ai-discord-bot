@@ -38,6 +38,8 @@ async def play(
 
     if pos:
         await sessions[guild].enqueue(query=song, pos=pos)
+    else:
+        await sessions[guild].enqueue(query=song)
 
 
 @bot.tree.command()
