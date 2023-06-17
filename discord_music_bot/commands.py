@@ -2,6 +2,7 @@ import asyncio
 import discord
 import typing
 from discord_music_bot.bot import Bot
+from discord_music_bot.history import export_history
 from discord_music_bot.idle_timer import start_idle_timer
 from discord_music_bot.session import Session
 
@@ -172,3 +173,9 @@ async def now_playing(interaction: discord.Interaction):
 @bot.tree.command()
 async def say(interaction: discord.Interaction, msg: str):
     await interaction.response.send_message(msg)
+
+
+@bot.tree.command()
+async def export_history(interaction: discord.Interaction):
+    await interaction.response.send_message("Exporting chat history...")
+    await export_history(interaction.channel)
