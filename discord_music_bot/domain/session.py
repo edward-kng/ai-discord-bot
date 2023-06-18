@@ -1,6 +1,8 @@
 import asyncio
 import discord
 import random
+
+from .spotify import get_audio
 from .youtube_generic import YouTubeGeneric
 
 
@@ -113,7 +115,7 @@ class Session:
 
     def _get_audio(self, song):
         if song["type"] == "spotify":
-            return self.spotify.get_audio()
+            return get_audio(song)
         
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
