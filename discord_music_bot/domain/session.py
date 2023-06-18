@@ -1,7 +1,6 @@
 import asyncio
 import discord
 import random
-from .spotify import Spotify
 from .youtube_generic import YouTubeGeneric
 
 
@@ -103,14 +102,13 @@ class Session:
 
             self._download_queue.pop(0)
 
-    @staticmethod
-    def _get_metadata(query):
+    def _get_metadata(self, query):
         if isinstance(query, discord.Attachment):
             return [{"query": query, "audio": query.url,
                     "title": query.filename, "type": "file"}]
 
         if "spotify.com" in query:
-            return Spotify.get_metadata(query)
+            return self.spotify.get_metadata(query)
         
         return YouTubeGeneric.get_metadata(query)
 
