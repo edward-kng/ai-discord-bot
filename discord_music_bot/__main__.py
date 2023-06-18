@@ -18,9 +18,7 @@ def main():
         pass
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
-
-    TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-    app_container.bot.run(TOKEN)
+    app_container.bot.run(os.getenv('DISCORD_BOT_TOKEN'))
 
 
 if __name__ == "__main__":
