@@ -22,6 +22,7 @@ async def export_history(channel):
     with open(path + "/history.json", "w") as history_file:
         json.dump(history, history_file)
 
+    await channel.send("Chat history export finished!")
 
 async def download_history(channel, limit=None, download_images=True):
     path = "chat-history/" + str(channel.id)
@@ -59,7 +60,5 @@ async def download_history(channel, limit=None, download_images=True):
 
     for thread in threads:
         thread.join()
-
-    # await feedback_channel.send("Chat history export finished!")
 
     return history
