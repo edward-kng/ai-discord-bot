@@ -17,7 +17,7 @@ async def export_history(channel):
     if not os.path.exists(path + "/files"):
         os.makedirs(path + "/files")
 
-    history = download_history(channel)
+    history = await download_history(channel)
 
     with open(path + "/history.json", "w") as history_file:
         json.dump(history, history_file)
