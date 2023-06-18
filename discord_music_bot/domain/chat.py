@@ -5,9 +5,9 @@ from .history import download_history
 
 
 class ChatService:
-    def __init__(self, name):
+    def __init__(self, bot):
         self.memory = 10
-        self.name = name
+        self.bot = bot
 
     async def answer(self, channel, question):
         if not openai.api_key:
@@ -34,7 +34,7 @@ class ChatService:
                 {
                     "role": "system",
                     "content":
-                        "You are a Discord bot that chats with users. Your name is " + self.name.user.name
+                        "You are a Discord bot that chats with users. Your name is " + self.bot.user.name
                         + ". Below is a transcript of "
                         + "the conversation so far:\n" + history_prompt
                 },
