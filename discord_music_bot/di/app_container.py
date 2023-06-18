@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from ..presentation.bot import Bot
 from ..domain.spotify import Spotify
-from ..domain.chat import ChatService
+from discord_music_bot.domain.services.chat import ChatService
 
 
 class AppContainer:

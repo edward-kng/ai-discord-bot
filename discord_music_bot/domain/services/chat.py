@@ -1,7 +1,7 @@
 import asyncio
 import openai
 
-from .history import download_history
+from discord_music_bot.domain.history import download_history
 
 
 class ChatService:
