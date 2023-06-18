@@ -18,8 +18,9 @@ def create_completion(chat_history, question, bot):
             {
                 "role": "system",
                 "content":
-                    "You are a Discord bot that chats with users. Your name is " + bot.user.name + ". Below is a transcript of "
-                + "the conversation so far:\n" + history_prompt
+                    "You are a Discord bot that chats with users. Your name is " + bot.user.name
+                    + ". Below is a transcript of "
+                    + "the conversation so far:\n" + history_prompt
             },
             {"role": "user", "content": question}
         ]
