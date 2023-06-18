@@ -27,8 +27,7 @@ class Session:
         self.spotify = spotify
 
     async def enqueue(self, query, shuffle=False, pos=0):
-        print("hello")
-        metadata_list = await asyncio.to_thread(Session._get_metadata, query)
+        metadata_list = await asyncio.to_thread(self._get_metadata, query)
 
         if metadata_list is None:
             await self._feedback_channel.send(
@@ -93,7 +92,7 @@ class Session:
 
             if "audio" not in song:
                 song["audio"] = await asyncio.to_thread(
-                    Session._get_audio, song)
+                    self._get_audio, song)
 
             self._play_queue.append(song)
 
