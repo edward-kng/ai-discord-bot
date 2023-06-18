@@ -24,6 +24,7 @@ async def export_history(channel):
 
     await channel.send("Chat history export finished!")
 
+
 async def download_history(channel, limit=None, download_images=True):
     path = "chat-history/" + str(channel.id)
     history = {"messages": []}
