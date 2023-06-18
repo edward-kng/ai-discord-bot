@@ -1,13 +1,11 @@
 import discord
 
-from discord_music_bot.openai import answer
-
 
 class Bot(discord.Client):
-    def __init__(self, i):
+    def __init__(self, i, chat_service):
         super().__init__(intents=i)
         self.tree = discord.app_commands.CommandTree(self)
-        self.chat_memory = 10
+        self.chat_service = chat_service
 
     async def on_ready(self):
         print(str(self.user) + " connected!")
@@ -22,4 +20,4 @@ class Bot(discord.Client):
                 and (await message.channel.fetch_message(message.reference.message_id)).author.id == self.user.id:
             question = message.content.replace(mention, name)
 
-            await message.reply(await answer(message.channel, question, name, self.chat_memory))
+            await message.reply(await self.chat_service.answer(message.channel, question))

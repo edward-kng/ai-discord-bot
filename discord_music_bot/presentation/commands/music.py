@@ -1,19 +1,15 @@
 import asyncio
 import discord
 import typing
-from discord_music_bot.bot import Bot
-from discord_music_bot.history import download_history
-from discord_music_bot.idle_timer import start_idle_timer
-from discord_music_bot.session import Session
 
-intents = discord.Intents.default()
-intents.message_content = True
-bot = Bot(intents)
+from ...__main__ import app_container
+from ...domain.idle_timer import start_idle_timer
+from ...domain.session import Session
+
 sessions = {}
 idle_timers = set()
 
-
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def play(
         interaction: discord.Interaction, song: str, pos: typing.Optional[int]
 ):
@@ -30,8 +26,8 @@ async def play(
     if guild not in sessions:
         await user_voice.channel.connect()
 
-        voice = discord.utils.get(bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
         idle_timers.add(
             asyncio.create_task(start_idle_timer(sessions, guild)))
@@ -42,7 +38,7 @@ async def play(
         await sessions[guild].enqueue(query=song)
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def play_file(
         interaction: discord.Interaction, file: discord.Attachment):
     user_voice = interaction.user.voice
@@ -50,7 +46,7 @@ async def play_file(
 
     if not user_voice and guild not in sessions:
         await interaction.response.send_message("Join a voice channel first!")
-        
+
         return
 
     await interaction.response.send_message(file.filename)
@@ -58,20 +54,20 @@ async def play_file(
     if guild not in sessions:
         await user_voice.channel.connect()
 
-        voice = discord.utils.get(bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
     await sessions[guild].enqueue(query=file)
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def shuffle(interaction: discord.Interaction, song: str):
     user_voice = interaction.user.voice
     guild = interaction.guild
 
     if not user_voice and guild not in sessions:
         await interaction.response.send_message("Join a voice channel first!")
-        
+
         return
 
     await interaction.response.send_message(song)
@@ -79,13 +75,13 @@ async def shuffle(interaction: discord.Interaction, song: str):
     if guild not in sessions:
         await user_voice.channel.connect()
 
-        voice = discord.utils.get(bot.voice_clients, guild=guild)
-        sessions[guild] = Session(interaction.channel, guild, voice)
+        voice = discord.utils.get(app_container.bot.voice_clients, guild=guild)
+        sessions[guild] = Session(interaction.channel, guild, voice, app_container.spotify)
 
     await sessions[guild].enqueue(query=song, shuffle=True)
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def skip(interaction: discord.Interaction):
     guild = interaction.guild
 
@@ -97,7 +93,7 @@ async def skip(interaction: discord.Interaction):
         await interaction.response.send_message("Not in a voice channel!")
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def leave(interaction: discord.Interaction):
     guild = interaction.guild
 
@@ -111,7 +107,7 @@ async def leave(interaction: discord.Interaction):
         await interaction.response.send_message("Not in a voice channel!")
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def pause(interaction: discord.Interaction):
     guild = interaction.guild
 
@@ -123,7 +119,7 @@ async def pause(interaction: discord.Interaction):
         await interaction.response.send_message("Not in a voice channel!")
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def resume(interaction: discord.Interaction):
     guild = interaction.guild
 
@@ -135,10 +131,10 @@ async def resume(interaction: discord.Interaction):
         await interaction.response.send_message("Not in a voice channel!")
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def queue(interaction: discord.Interaction):
     guild = interaction.guild
-    
+
     if guild in sessions:
         song_queue = sessions[guild].get_song_queue()
 
@@ -158,7 +154,7 @@ async def queue(interaction: discord.Interaction):
         await interaction.response.send_message("No songs queued!")
 
 
-@bot.tree.command()
+@app_container.bot.tree.command()
 async def now_playing(interaction: discord.Interaction):
     guild = interaction.guild
 
@@ -170,21 +166,3 @@ async def now_playing(interaction: discord.Interaction):
             return
 
     await interaction.response.send_message("No song playing!")
-
-
-@bot.tree.command()
-async def say(interaction: discord.Interaction, msg: str):
-    await interaction.response.send_message(msg)
-
-
-@bot.tree.command()
-async def export_history(interaction: discord.Interaction):
-    await interaction.response.send_message("Exporting chat history...")
-    await download_history(interaction.channel)
-
-
-@bot.tree.command()
-async def memory(interaction: discord.Interaction, nr: int):
-    bot.chat_memory = nr
-
-    await interaction.response.send_message("Memory set to " + str(nr) + " messages!")

@@ -1,12 +1,13 @@
 import asyncio
 import discord
 import random
-from discord_music_bot.downloaders.spotify import Spotify
-from discord_music_bot.downloaders.youtube_generic import YouTubeGeneric
+
+from .spotify import get_audio
+from .youtube_generic import YouTubeGeneric
 
 
 class Session:
-    def __init__(self, feedback_channel, guild, voice):
+    def __init__(self, feedback_channel, guild, voice, spotify):
         self._feedback_channel = feedback_channel
         self._guild = guild
         self._voice = voice
@@ -25,8 +26,10 @@ class Session:
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
 
+        self.spotify = spotify
+
     async def enqueue(self, query, shuffle=False, pos=0):
-        metadata_list = await asyncio.to_thread(Session._get_metadata, query)
+        metadata_list = await asyncio.to_thread(self._get_metadata, query)
 
         if metadata_list is None:
             await self._feedback_channel.send(
@@ -91,7 +94,7 @@ class Session:
 
             if "audio" not in song:
                 song["audio"] = await asyncio.to_thread(
-                    Session._get_audio, song)
+                    self._get_audio, song)
 
             self._play_queue.append(song)
 
@@ -100,21 +103,19 @@ class Session:
 
             self._download_queue.pop(0)
 
-    @staticmethod
-    def _get_metadata(query):
+    def _get_metadata(self, query):
         if isinstance(query, discord.Attachment):
             return [{"query": query, "audio": query.url,
                     "title": query.filename, "type": "file"}]
 
         if "spotify.com" in query:
-            return Spotify.get_metadata(query)
+            return self.spotify.get_metadata(query)
         
         return YouTubeGeneric.get_metadata(query)
 
-    @staticmethod
-    def _get_audio(song):
+    def _get_audio(self, song):
         if song["type"] == "spotify":
-            return Spotify.get_audio(song)
+            return get_audio(song)
         
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
