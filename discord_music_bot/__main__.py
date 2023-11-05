@@ -1,23 +1,11 @@
-import os
-import openai
-from .di.app_container import AppContainer
+from .app import App
 from .presentation.commands.music import *
 from .presentation.commands.chat import *
 
 
 def main():
-    app_container = AppContainer()
-    
-    try:
-        from dotenv import load_dotenv
-        
-        load_dotenv()
-    except ImportError:
-        # python-dotenv is not installed, ignore
-        pass
-
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    app_container.bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+    app = App()
+    app.run()
 
 
 if __name__ == "__main__":
