@@ -1,14 +1,13 @@
 import os
 import openai
 from .di.app_container import AppContainer
-
-app_container = AppContainer()
-
 from .presentation.commands.music import *
 from .presentation.commands.chat import *
 
 
 def main():
+    app_container = AppContainer()
+    
     try:
         from dotenv import load_dotenv
         

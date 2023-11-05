@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from ..presentation.bot import Bot
 from ..domain.spotify import Spotify
 from discord_music_bot.domain.services.chat import ChatService
+from ..presentation.commands.music import initMusicCommands
+from ..presentation.commands.chat import initChatCommands
 
 
 class AppContainer:
@@ -34,3 +36,5 @@ class AppContainer:
 
         self.chat_service = ChatService(self.bot)
         self.bot.chat_service = self.chat_service
+        initMusicCommands(self.bot, self.spotify)
+        initChatCommands(self.bot, self.chat_service)
