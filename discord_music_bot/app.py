@@ -42,9 +42,10 @@ class App:
             # spotipy is not installed, ignore
             pass
 
-        chat_service = ChatService(self.bot)
+        music_service = MusicService(self.bot, spotify)
+        chat_service = ChatService(self.bot, music_service)
         self.bot.chat_service = chat_service
-        initMusicCommands(self.bot, spotify, MusicService(self.bot, spotify))
+        initMusicCommands(self.bot, spotify, music_service)
         initChatCommands(self.bot, chat_service)
 
         openai.api_key = os.getenv("OPENAI_API_KEY")
