@@ -5,6 +5,7 @@ import openai
 from dotenv import load_dotenv
 from .presentation.bot import Bot
 from .domain.spotify import Spotify
+from .domain.services.music import MusicService
 from discord_music_bot.domain.services.chat import ChatService
 from .presentation.commands.music import initMusicCommands
 from .presentation.commands.chat import initChatCommands
@@ -43,7 +44,7 @@ class App:
 
         chat_service = ChatService(self.bot)
         self.bot.chat_service = chat_service
-        initMusicCommands(self.bot, spotify)
+        initMusicCommands(self.bot, spotify, MusicService(self.bot, spotify))
         initChatCommands(self.bot, chat_service)
 
         openai.api_key = os.getenv("OPENAI_API_KEY")
