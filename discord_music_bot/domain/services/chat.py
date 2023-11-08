@@ -13,7 +13,7 @@ functions = [
             "properties": {
                 "query" : {
                     "type": "string",
-                    "description": "Song URL or search query",
+                    "description": "Song URL or search query.",
                 }
             }
         }
@@ -84,7 +84,8 @@ class ChatService:
             channel, limit=self.memory, download_images=False
         )
 
-        return await self.create_completion(chat_history, question, user, guild, channel)
+        async with channel.typing():
+            return await self.create_completion(chat_history, question, user, guild, channel)
 
     async def create_completion(self, chat_history, question, user, guild, channel):
         history_prompt = ""
