@@ -28,12 +28,6 @@ playlist
 To chat, simply send a message and mention the bot (with @). Reply to continue 
 the conversation.
 
-## Pip Dependencies
-- [discord.py](https://github.com/Rapptz/discord.py)
-- [yt_dlp](https://github.com/yt-dlp/yt-dlp)
-- [python-dotenv](https://github.com/theskumar/python-dotenv) (optional)
-- [spotipy](https://github.com/spotipy-dev/spotipy) (optional)
-
 ## Setup
 
 1. Make sure you have Python 3 installed.
@@ -80,23 +74,17 @@ OPENAI_API_KEY=<your key>
 
 ### Enabling Spotify Support
 
-1. Install `spotipy` using:
-
-```
-source .venv/bin/activate && python3 -m pip install spotipy
-```
-
-2. Create an application on the 
+1. Create an application on the 
  [Spotify for Developers](https://developer.spotify.com/) site.
-3. Copy your app's client ID and client secret.
-4. Create the following environment variables:
+2. Copy your app's client ID and client secret.
+3. Create the following environment variables:
 
 ```
 SPOTIPY_CLIENT_ID=<your client ID>
 SPOTIPY_CLIENT_SECRET=<your client secret>
 ```
 
-5. (Re)start the bot.
+4. (Re)start the bot.
 
 ## Notes
 
