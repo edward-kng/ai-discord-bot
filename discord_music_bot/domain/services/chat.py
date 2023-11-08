@@ -28,18 +28,50 @@ functions = [
     },
     {
         "name": "get_now_playing_song",
-        "description": "Get the name of the current song playing",
+        "description": "Get the name and artist of the current song playing",
         "parameters": {
             "type": "object",
             "properties": {}
         }
-    }
+    },
+    {
+        "name": "pause_song",
+        "description": "Pause the current song",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "resume_song",
+        "description": "Resume the current song",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "get_song_queue",
+        "description": "The the current queue of songs to play",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "leave",
+        "description": "Leave the voice chat and stop all playing music",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
 ]
 
 class ChatService:
 
     def __init__(self, bot, music_service):
-        self.memory = 1
+        self.memory = 10
         self.bot = bot
         self._music_service = music_service
 
@@ -52,9 +84,6 @@ class ChatService:
         )
 
         return await self.create_completion(chat_history, question, user, guild, channel)
-        return await asyncio.to_thread(
-            self.create_completion, chat_history, question, user, guild, channel
-        )
 
     async def create_completion(self, chat_history, question, user, guild, channel):
         history_prompt = ""
@@ -87,13 +116,21 @@ class ChatService:
         if "function_call" in data["message"]:
             call = data["message"]["function_call"]
             args = json.loads(call["arguments"])
-            print(args)
+            fun = call["name"]
 
-            if call["name"] == "enqueue_song":
+            if fun == "enqueue_song":
                 msg = await self._music_service.enqueue_song(args["query"], 0, user, guild, channel, False)
-            elif call["name"] == "get_now_playing_song":
+            elif fun == "get_now_playing_song":
                 msg = self._music_service.get_now_playing_song(guild)
-            elif call["name"] == "skip_song":
+            elif fun == "skip_song":
                 msg = await self._music_service.skip_song(guild)
+            elif fun == "pause_song":
+                msg = self._music_service.pause_song(guild)
+            elif fun == "resume_song":
+                msg = self._music_service.resume_song(guild)
+            elif fun == "get_song_queue":
+                msg = self._music_service.get_song_queue(guild)
+            else:
+                msg = self._music_service.leave(guild)
 
         return msg
