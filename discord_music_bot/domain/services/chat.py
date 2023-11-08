@@ -1,8 +1,8 @@
 import asyncio
-import openai
 import json
 
 from discord_music_bot.domain.history import download_history
+from openai import OpenAI
 
 functions = [
     {
@@ -70,13 +70,14 @@ functions = [
 
 class ChatService:
 
-    def __init__(self, bot, music_service):
+    def __init__(self, bot, openai_client, music_service):
         self.memory = 10
         self.bot = bot
         self._music_service = music_service
+        self._openai_client: OpenAI = openai_client
 
     async def answer(self, channel, question, user, guild):
-        if not openai.api_key:
+        if not self._openai_client:
             return "Chat not enabled!"
 
         chat_history = await download_history(
@@ -94,7 +95,7 @@ class ChatService:
 
 
         data = await asyncio.to_thread(
-            openai.ChatCompletion.create, model="gpt-3.5-turbo",
+            self._openai_client.chat.completions.create, model="gpt-3.5-turbo",
             messages=[
                 {
                     "role": "system",
@@ -107,16 +108,16 @@ class ChatService:
             ],
             functions=functions)
     
-        data = data["choices"][0]
+        data = data.choices[0]
 
         print(data)
 
-        msg = data["message"]["content"]
+        msg = data.message.content
+        call = data.message.function_call
 
-        if "function_call" in data["message"]:
-            call = data["message"]["function_call"]
-            args = json.loads(call["arguments"])
-            fun = call["name"]
+        if call:
+            args = json.loads(call.arguments)
+            fun = call.name
 
             if fun == "enqueue_song":
                 msg = await self._music_service.enqueue_song(args["query"], 0, user, guild, channel, False)
@@ -131,6 +132,6 @@ class ChatService:
             elif fun == "get_song_queue":
                 msg = self._music_service.get_song_queue(guild)
             else:
-                msg = self._music_service.leave(guild)
+                msg = await self._music_service.leave(guild)
 
         return msg
