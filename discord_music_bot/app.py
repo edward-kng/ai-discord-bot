@@ -1,6 +1,7 @@
 import os
 
 import discord
+import spotipy
 from dotenv import load_dotenv
 from .presentation.bot import Bot
 from .domain.spotify import Spotify
@@ -13,34 +14,22 @@ from openai import OpenAI
 
 class App:
     def __init__(self):
-        try:
-            from dotenv import load_dotenv
-        
-            load_dotenv()
-        except ImportError:
-            # python-dotenv is not installed, ignore
-            pass
+        load_dotenv()
 
         intents = discord.Intents.default()
         intents.message_content = True
         self.bot = Bot(intents, None)
         spotify = None
 
-        try:
-            import spotipy
+        SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+        SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+        spotify_client = spotipy.Spotify(
+            client_credentials_manager
+            =spotipy.oauth2.SpotifyClientCredentials(
+                client_id=SPOTIPY_CLIENT_ID,
+                client_secret=SPOTIPY_CLIENT_SECRET))
 
-            SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-            SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-            spotify_client = spotipy.Spotify(
-                client_credentials_manager
-                =spotipy.oauth2.SpotifyClientCredentials(
-                    client_id=SPOTIPY_CLIENT_ID,
-                    client_secret=SPOTIPY_CLIENT_SECRET))
-
-            spotify = Spotify(spotify_client)
-        except ImportError:
-            # spotipy is not installed, ignore
-            pass
+        spotify = Spotify(spotify_client)
 
         OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 
