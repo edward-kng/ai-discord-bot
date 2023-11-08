@@ -67,6 +67,17 @@ DISCORD_BOT_TOKEN=<your token>
 sh run.sh
 ```
 
+### Enabling Chat Features
+
+1. Get an OpenAI API key and top up your account at 
+[OpenAI developer platform](https://platform.openai.com/).
+2. Create the `OPENAI_API_KEY` environment variable:
+
+```
+OPENAI_API_KEY=<your key>
+```
+3. (Re)start the bot.
+
 ### Enabling Spotify Support
 
 1. Install `spotipy` using:
@@ -84,6 +95,8 @@ source .venv/bin/activate && python3 -m pip install spotipy
 SPOTIPY_CLIENT_ID=<your client ID>
 SPOTIPY_CLIENT_SECRET=<your client secret>
 ```
+
+5. (Re)start the bot.
 
 ## Notes
 
