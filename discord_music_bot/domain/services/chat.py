@@ -1,10 +1,18 @@
 import asyncio
 import json
 
-from discord_music_bot.domain.history import download_history
+from discord_music_bot.domain.history import download_history, export_history
 from openai import OpenAI
 
 functions = [
+    {
+        "name": "export_chat_history",
+        "description": "Back up and export the chat history",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
     {
         "name": "enqueue_song",
         "description": "Enqueue a song to play",
@@ -18,7 +26,8 @@ functions = [
                 "shuffle" : {
                     "type": "boolean",
                     "description": """Whether to shuffle the requested 
-                    playlist of songs. Has no effect on single songs. Defaults to false."""
+                    playlist of songs. Has no effect on single songs. Defaults 
+                    to false."""
                 }
             },
             "required": ["query"]
@@ -123,7 +132,10 @@ class ChatService:
             args = json.loads(call.arguments)
             fun = call.name
 
-            if fun == "enqueue_song":
+            if fun == "export_chat_history":
+                msg = "Okay! Just a moment."
+                asyncio.create_task(export_history(channel))
+            elif fun == "enqueue_song":
                 msg = await self._music_service.enqueue_song(
                     args["query"], 0, user, guild, channel, args["shuffle"] if "shuffle" in args else False)
             elif fun == "get_now_playing_song":
