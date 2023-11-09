@@ -20,4 +20,4 @@ class Bot(discord.Client):
                 and (await message.channel.fetch_message(message.reference.message_id)).author.id == self.user.id:
             question = message.content.replace(mention, name)
 
-            await message.reply(await self.chat_service.answer(message.channel, question))
+            await message.reply(await self.chat_service.answer(message.channel, question, message.author, message.channel.guild))
