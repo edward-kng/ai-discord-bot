@@ -6,6 +6,24 @@ from openai import OpenAI
 
 functions = [
     {
+        "name": "send_direct_message",
+        "description": "Send a direct message to a user",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string",
+                    "description": "The ID of the user, usually found after an @ symbol."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Message to send."
+                }
+            },
+            "required": ["user_id", "message"]
+        }
+    },
+    {
         "name": "export_chat_history",
         "description": "Back up and export the chat history",
         "parameters": {
@@ -80,7 +98,7 @@ functions = [
             "type": "object",
             "properties": {}
         }
-    },
+    }
 ]
 
 class ChatService:
@@ -102,6 +120,10 @@ class ChatService:
         async with channel.typing():
             return await self.create_completion(chat_history, question, user, guild, channel)
 
+    async def dm_user(self, user_id, msg):
+        user = await self.bot.fetch_user(user_id)
+        await user.send(msg)
+
     async def create_completion(self, chat_history, question, user, guild, channel):
         history_prompt = ""
         chat_history["messages"].pop(0)
@@ -111,7 +133,7 @@ class ChatService:
 
 
         data = await asyncio.to_thread(
-            self._openai_client.chat.completions.create, model="gpt-3.5-turbo",
+            self._openai_client.chat.completions.create, model="gpt-4",
             messages=[
                 {
                     "role": "system",
@@ -132,7 +154,10 @@ class ChatService:
             args = json.loads(call.arguments)
             fun = call.name
 
-            if fun == "export_chat_history":
+            if fun == "send_direct_message":
+                await self.dm_user(args["user_id"], args["message"])
+                msg = "Okay!"
+            elif fun == "export_chat_history":
                 msg = "Okay! Just a moment."
                 asyncio.create_task(export_history(channel))
             elif fun == "enqueue_song":
