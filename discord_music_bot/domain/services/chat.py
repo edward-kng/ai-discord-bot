@@ -14,6 +14,12 @@ functions = [
                 "query" : {
                     "type": "string",
                     "description": "Song URL or search query.",
+                },
+                "shuffle" : {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": """Whether to shuffle the requested 
+                    playlist of songs. Has no effect on single songs. Defaults to false."""
                 }
             }
         }
@@ -110,9 +116,6 @@ class ChatService:
             functions=functions)
     
         data = data.choices[0]
-
-        print(data)
-
         msg = data.message.content
         call = data.message.function_call
 
@@ -121,7 +124,8 @@ class ChatService:
             fun = call.name
 
             if fun == "enqueue_song":
-                msg = await self._music_service.enqueue_song(args["query"], 0, user, guild, channel, False)
+                msg = await self._music_service.enqueue_song(
+                    args["query"], 0, user, guild, channel, args["shuffle"] if "shuffle" in args else False)
             elif fun == "get_now_playing_song":
                 msg = self._music_service.get_now_playing_song(guild)
             elif fun == "skip_song":
