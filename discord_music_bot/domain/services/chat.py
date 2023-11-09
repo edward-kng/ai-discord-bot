@@ -17,11 +17,11 @@ functions = [
                 },
                 "shuffle" : {
                     "type": "boolean",
-                    "default": "false",
                     "description": """Whether to shuffle the requested 
                     playlist of songs. Has no effect on single songs. Defaults to false."""
                 }
-            }
+            },
+            "required": ["query"]
         }
     },
     {
