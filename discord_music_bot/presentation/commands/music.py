@@ -1,13 +1,14 @@
 import typing
 
 import discord
+from ...domain.services.music import MusicService
 
 
-def initMusicCommands(bot, spotify, music_service):
+def initMusicCommands(bot, music_service: MusicService) -> None:
     @bot.tree.command()
     async def play(
         interaction: discord.Interaction, song: str, pos: typing.Optional[int]
-    ):
+    ) -> None:
         await interaction.response.send_message(
             await music_service.enqueue_song(
                 song, pos, interaction.user, interaction.guild, interaction.channel
@@ -15,7 +16,9 @@ def initMusicCommands(bot, spotify, music_service):
         )
 
     @bot.tree.command()
-    async def play_file(interaction: discord.Interaction, file: discord.Attachment):
+    async def play_file(
+        interaction: discord.Interaction, file: discord.Attachment
+    ) -> None:
         await interaction.response.send_message(
             await music_service.enqueue_song(
                 file, 0, interaction.user, interaction.guild, interaction.channel
@@ -23,7 +26,7 @@ def initMusicCommands(bot, spotify, music_service):
         )
 
     @bot.tree.command()
-    async def shuffle(interaction: discord.Interaction, song: str):
+    async def shuffle(interaction: discord.Interaction, song: str) -> None:
         await interaction.response.send_message(
             await music_service.enqueue_song(
                 song,
@@ -36,37 +39,37 @@ def initMusicCommands(bot, spotify, music_service):
         )
 
     @bot.tree.command()
-    async def skip(interaction: discord.Interaction):
+    async def skip(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             await music_service.skip_song(interaction.guild)
         )
 
     @bot.tree.command()
-    async def leave(interaction: discord.Interaction):
+    async def leave(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             await music_service.leave(interaction.guild)
         )
 
     @bot.tree.command()
-    async def pause(interaction: discord.Interaction):
+    async def pause(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             music_service.pause_song(interaction.guild)
         )
 
     @bot.tree.command()
-    async def resume(interaction: discord.Interaction):
+    async def resume(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             music_service.resume_song(interaction.guild)
         )
 
     @bot.tree.command()
-    async def queue(interaction: discord.Interaction):
+    async def queue(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             music_service.get_song_queue(interaction.guild)
         )
 
     @bot.tree.command()
-    async def now_playing(interaction: discord.Interaction):
+    async def now_playing(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(
             music_service.get_now_playing_song(interaction.guild)
         )

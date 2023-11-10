@@ -2,17 +2,18 @@ import json
 import os
 from threading import Thread
 
+import discord
 import requests
 
 
-def download(attachment, path):
+def download(attachment: discord.Attachment, path: str) -> None:
     response = requests.get(attachment.url)
 
     with open(str(path) + "/files/" + attachment.filename, "wb") as file:
         file.write(response.content)
 
 
-async def export_history(channel):
+async def export_history(channel: discord.TextChannel) -> None:
     path = "chat-history/" + str(channel.id)
 
     if not os.path.exists(path + "/files"):
@@ -26,7 +27,9 @@ async def export_history(channel):
     await channel.send("Chat history export finished!")
 
 
-async def download_history(channel, limit=None, download_images=True):
+async def download_history(
+    channel: discord.TextChannel, limit: int | None = None, download_images=True
+) -> dict:
     path = "chat-history/" + str(channel.id)
     history = {"messages": []}
     threads = []

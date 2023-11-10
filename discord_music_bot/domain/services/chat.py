@@ -1,9 +1,12 @@
 import asyncio
 import json
 
+import discord
 from openai import OpenAI
 
+from .music import MusicService
 from ..history import download_history, export_history
+from ...presentation.bot import Bot
 
 functions = [
     {
@@ -80,13 +83,21 @@ functions = [
 
 
 class ChatService:
-    def __init__(self, bot, openai_client, music_service):
+    def __init__(
+        self, bot: Bot, openai_client: OpenAI, music_service: MusicService
+    ) -> None:
         self.memory = 10
         self.bot = bot
         self._music_service = music_service
-        self._openai_client: OpenAI = openai_client
+        self._openai_client = openai_client
 
-    async def answer(self, channel, question, user, guild):
+    async def answer(
+        self,
+        channel: discord.TextChannel,
+        question: str,
+        user: discord.User | discord.Member,
+        guild: discord.Guild,
+    ) -> str:
         if not self._openai_client:
             return "Chat not enabled!"
 
@@ -99,11 +110,18 @@ class ChatService:
                 chat_history, question, user, guild, channel
             )
 
-    async def dm_user(self, user_id, msg):
+    async def dm_user(self, user_id: int, msg: str) -> None:
         user = await self.bot.fetch_user(user_id)
         await user.send(msg)
 
-    async def create_completion(self, chat_history, question, user, guild, channel):
+    async def create_completion(
+        self,
+        chat_history: dict,
+        question: str,
+        user: discord.User | discord.Member,
+        guild: discord.Guild,
+        channel: discord.TextChannel,
+    ) -> str:
         history_prompt = ""
         chat_history["messages"].pop(0)
 

@@ -3,12 +3,18 @@ import random
 
 import discord
 
-from .spotify import get_audio
+from .spotify import get_audio, Spotify
 from .youtube_generic import YouTubeGeneric
 
 
 class Session:
-    def __init__(self, feedback_channel, guild, voice, spotify):
+    def __init__(
+        self,
+        feedback_channel: discord.TextChannel,
+        guild: discord.Guild,
+        voice: discord.VoiceState,
+        spotify: Spotify,
+    ) -> None:
         self._feedback_channel = feedback_channel
         self._guild = guild
         self._voice = voice
@@ -29,7 +35,7 @@ class Session:
 
         self.spotify = spotify
 
-    async def enqueue(self, query, shuffle=False, pos=0):
+    async def enqueue(self, query: str, shuffle=False, pos=0) -> None:
         metadata_list = await asyncio.to_thread(self._get_metadata, query)
 
         if metadata_list is None:
@@ -59,11 +65,11 @@ class Session:
 
         await self._feedback_channel.send(msg)
 
-    async def skip(self):
+    async def skip(self) -> None:
         self._skipped = True
         self._paused = False
 
-    async def quit(self):
+    async def quit(self) -> None:
         if self._voice.is_playing():
             self._voice.stop()
 
@@ -79,10 +85,10 @@ class Session:
 
         await asyncio.gather(self._downloader, self._player)
 
-    def get_song_queue(self):
+    def get_song_queue(self) -> list[dict]:
         return self._play_queue + self._download_queue
 
-    async def _start_downloader(self):
+    async def _start_downloader(self) -> None:
         while self._active:
             if len(self._download_queue) == 0:
                 async with self._download_ready:
@@ -103,7 +109,7 @@ class Session:
 
             self._download_queue.pop(0)
 
-    def _get_metadata(self, query):
+    def _get_metadata(self, query: str) -> list[dict]:
         if isinstance(query, discord.Attachment):
             return [
                 {
@@ -119,14 +125,14 @@ class Session:
 
         return YouTubeGeneric.get_metadata(query)
 
-    def _get_audio(self, song):
+    def _get_audio(self, song: dict) -> None:
         if song["type"] == "spotify":
             return get_audio(song)
 
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
 
-    def pause_resume(self):
+    def pause_resume(self) -> None:
         self._paused = not self._paused
 
         if self._paused:
@@ -134,19 +140,19 @@ class Session:
         else:
             self._voice.resume()
 
-    def is_active(self):
+    def is_active(self) -> bool:
         return self._active
 
-    def is_playing(self):
+    def is_playing(self) -> bool:
         return self._voice.is_playing()
 
-    def get_now_playing(self):
+    def get_now_playing(self) -> str | None:
         if self._voice.is_playing():
             return self._now_playing
 
         return None
 
-    async def _start_playback(self):
+    async def _start_playback(self) -> None:
         while self._active:
             if len(self._play_queue) == 0:
                 async with self._playback_ready:

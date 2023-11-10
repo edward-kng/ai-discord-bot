@@ -4,16 +4,26 @@ import discord
 
 from ..idle_timer import start_idle_timer
 from ..session import Session
+from ..spotify import Spotify
+from ...presentation.bot import Bot
 
 
 class MusicService:
-    def __init__(self, bot, spotify):
+    def __init__(self, bot: Bot, spotify: Spotify) -> None:
         self._bot = bot
         self._spotify = spotify
         self._sessions = {}
         self._idle_timers = set()
 
-    async def enqueue_song(self, query, pos, user, guild, channel, shuffle=False):
+    async def enqueue_song(
+        self,
+        query,
+        pos: int,
+        user: discord.User | discord.Member,
+        guild: discord.Guild,
+        channel: discord.TextChannel,
+        shuffle=False,
+    ) -> str:
         user_voice = user.voice
 
         if not user_voice and guild not in self._sessions:
@@ -37,7 +47,7 @@ class MusicService:
 
         return msg
 
-    async def skip_song(self, guild):
+    async def skip_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             await self._sessions[guild].skip()
 
@@ -45,7 +55,7 @@ class MusicService:
         else:
             return "Not in a voice channel!"
 
-    async def leave(self, guild):
+    async def leave(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             msg = "Bye!"
 
@@ -57,21 +67,21 @@ class MusicService:
 
         return msg
 
-    def pause_song(self, guild):
+    def pause_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Paused!"
 
         return "Not in a voice channel!"
 
-    def resume_song(self, guild):
+    def resume_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Resumed!"
 
         return "Not in a voice channel!"
 
-    def get_song_queue(self, guild):
+    def get_song_queue(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             song_queue = self._sessions[guild].get_song_queue()
 
@@ -89,7 +99,7 @@ class MusicService:
             return msg
         return "No songs queued!"
 
-    def get_now_playing_song(self, guild):
+    def get_now_playing_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             song = self._sessions[guild].get_now_playing()
 
