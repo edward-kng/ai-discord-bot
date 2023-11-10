@@ -1,7 +1,7 @@
 import typing
 
 import discord
-from ...domain.services.music import MusicService
+from ...logic.services.music import MusicService
 
 
 def initMusicCommands(bot, music_service: MusicService) -> None:

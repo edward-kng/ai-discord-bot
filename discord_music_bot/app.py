@@ -5,9 +5,10 @@ import spotipy
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from .domain.services.chat import ChatService
-from .domain.services.music import MusicService
-from .domain.spotify import Spotify
+from .data.repositories.youtube import YouTubeRepository
+from .logic.services.chat import ChatService
+from .logic.services.music import MusicService
+from .logic.utils.music.music_fetcher import MusicFetcher
 from .presentation.bot import Bot
 from .presentation.commands.chat import initChatCommands
 from .presentation.commands.music import initMusicCommands
@@ -29,7 +30,7 @@ class App:
             )
         )
 
-        spotify = Spotify(spotify_client)
+        music_fetcher = MusicFetcher(YouTubeRepository(), spotify_client)
 
         OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -38,7 +39,7 @@ class App:
         else:
             openai_client = None
 
-        music_service = MusicService(self.bot, spotify)
+        music_service = MusicService(self.bot, music_fetcher)
         chat_service = ChatService(self.bot, openai_client, music_service)
         self.bot.chat_service = chat_service
         initMusicCommands(self.bot, music_service)

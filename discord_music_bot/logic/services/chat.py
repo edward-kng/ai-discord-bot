@@ -5,7 +5,7 @@ import discord
 from openai import OpenAI
 
 from .music import MusicService
-from ..history import download_history, export_history
+from discord_music_bot.logic.utils.chat.history import download_history, export_history
 from ...presentation.bot import Bot
 
 functions = [

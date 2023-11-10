@@ -2,22 +2,22 @@ import asyncio
 
 import discord
 
-from ..idle_timer import start_idle_timer
-from ..session import Session
-from ..spotify import Spotify
+from discord_music_bot.logic.utils.music.idle_timer import start_idle_timer
+from discord_music_bot.logic.utils.music.session import Session
+from ..utils.music.music_fetcher import MusicFetcher
 from ...presentation.bot import Bot
 
 
 class MusicService:
-    def __init__(self, bot: Bot, spotify: Spotify) -> None:
+    def __init__(self, bot: Bot, music_fetcher: MusicFetcher) -> None:
         self._bot = bot
-        self._spotify = spotify
+        self._music_fetcher = music_fetcher
         self._sessions = {}
         self._idle_timers = set()
 
     async def enqueue_song(
         self,
-        query,
+        query: str,
         pos: int,
         user: discord.User | discord.Member,
         guild: discord.Guild,
@@ -35,7 +35,7 @@ class MusicService:
             await user_voice.channel.connect()
 
             voice = discord.utils.get(self._bot.voice_clients, guild=guild)
-            self._sessions[guild] = Session(channel, guild, voice, self._spotify)
+            self._sessions[guild] = Session(channel, guild, voice, self._music_fetcher)
 
             self._idle_timers.add(
                 asyncio.create_task(start_idle_timer(self._sessions, guild))

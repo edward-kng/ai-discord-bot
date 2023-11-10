@@ -1,6 +1,6 @@
 import asyncio
 import discord
-from .session import Session
+from discord_music_bot.logic.utils.music.session import Session
 
 
 async def start_idle_timer(
