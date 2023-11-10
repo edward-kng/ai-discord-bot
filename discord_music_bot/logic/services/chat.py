@@ -191,11 +191,18 @@ class ChatService:
 
     async def get_chat_thread(self, channel: discord.TextChannel):
         history = {"messages": []}
+        found_start = False
+        i = self.memory
 
         async for message in channel.history():
             history["messages"].append(parse_message(message, [], "", False))
 
-            if self.bot.mentions(message):
+            if not found_start and self.bot.mentions(message):
+                found_start = True
+            elif found_start:
+                i -= 1
+
+            if found_start and i <= 0:
                 break
 
         return history
