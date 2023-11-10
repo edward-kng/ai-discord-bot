@@ -35,32 +35,9 @@ async def download_history(
     threads = []
 
     async for message in channel.history(limit=limit):
-        data = {
-            "sender": {
-                "name": message.author.name,
-                "id": message.author.id,
-            },
-            "sent": str(message.created_at),
-            "messageContent": message.content,
-        }
-
-        if message.edited_at is not None:
-            data["edited"] = str(message.edited_at)
-
-        if len(message.attachments) > 0:
-            data["files"] = []
-
-        for attachment in message.attachments:
-            file_data = {"fileName": attachment.filename, "url": attachment.url}
-
-            data["files"].append(file_data)
-
-            if download_images:
-                thread = Thread(target=download, args=(attachment, path))
-                threads.append(thread)
-                thread.start()
-
-        history["messages"].append(data)
+        history["messages"].append(
+            parse_message(message, threads, path, download_images)
+        )
 
     for thread in threads:
         thread.join()

@@ -134,9 +134,6 @@ class ChatService:
                 message["sender"]["name"] + " said: " + message["messageContent"] + "\n"
             )
 
-        print(history_prompt)
-        return "TESTING"
-
         data = await asyncio.to_thread(
             self._openai_client.chat.completions.create,
             model="gpt-4",
@@ -193,11 +190,10 @@ class ChatService:
         return msg
 
     async def get_chat_thread(self, channel: discord.TextChannel):
-        path = "chat-history/" + str(channel.id)
         history = {"messages": []}
 
         async for message in channel.history():
-            history["messages"].append(parse_message(message, [], path, False))
+            history["messages"].append(parse_message(message, [], "", False))
 
             if self.bot.mentions(message):
                 break
