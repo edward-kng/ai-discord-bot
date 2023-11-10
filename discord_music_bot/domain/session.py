@@ -3,7 +3,7 @@ import random
 
 import discord
 
-from .spotify import get_audio
+from .spotify import get_audio, Spotify
 from .youtube_generic import YouTubeGeneric
 
 
@@ -12,8 +12,8 @@ class Session:
         self,
         feedback_channel: discord.TextChannel,
         guild: discord.Guild,
-        voice,
-        spotify,
+        voice: discord.VoiceState,
+        spotify: Spotify,
     ) -> None:
         self._feedback_channel = feedback_channel
         self._guild = guild
