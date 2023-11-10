@@ -4,7 +4,7 @@ from ..domain.services.chat import ChatService
 
 
 class Bot(discord.Client):
-    def __init__(self, i: discord.Intents, chat_service: ChatService):
+    def __init__(self, i: discord.Intents, chat_service: ChatService | None):
         super().__init__(intents=i)
         self.tree = discord.app_commands.CommandTree(self)
         self.chat_service = chat_service
