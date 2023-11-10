@@ -4,10 +4,12 @@ import discord
 
 from ..idle_timer import start_idle_timer
 from ..session import Session
+from ..spotify import Spotify
+from ...presentation.bot import Bot
 
 
 class MusicService:
-    def __init__(self, bot, spotify) -> None:
+    def __init__(self, bot: Bot, spotify: Spotify) -> None:
         self._bot = bot
         self._spotify = spotify
         self._sessions = {}
