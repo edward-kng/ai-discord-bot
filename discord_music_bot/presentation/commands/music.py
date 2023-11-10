@@ -1,5 +1,7 @@
-import discord
 import typing
+
+import discord
+
 
 def initMusicCommands(bot, spotify, music_service):
     @bot.tree.command()

@@ -1,6 +1,7 @@
 import asyncio
-import discord
 import random
+
+import discord
 
 from .spotify import get_audio
 from .youtube_generic import YouTubeGeneric

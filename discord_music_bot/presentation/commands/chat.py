@@ -2,6 +2,7 @@ import discord
 
 from ...domain.history import export_history as export_history_logic
 
+
 def initChatCommands(bot, chat_service):
     @bot.tree.command()
     async def say(interaction: discord.Interaction, msg: str):

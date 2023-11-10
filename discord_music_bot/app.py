@@ -3,13 +3,14 @@ import os
 import discord
 import spotipy
 from dotenv import load_dotenv
-from .presentation.bot import Bot
-from .domain.spotify import Spotify
-from .domain.services.music import MusicService
-from discord_music_bot.domain.services.chat import ChatService
-from .presentation.commands.music import initMusicCommands
-from .presentation.commands.chat import initChatCommands
 from openai import OpenAI
+
+from .domain.services.chat import ChatService
+from .domain.services.music import MusicService
+from .domain.spotify import Spotify
+from .presentation.bot import Bot
+from .presentation.commands.chat import initChatCommands
+from .presentation.commands.music import initMusicCommands
 
 
 class App:

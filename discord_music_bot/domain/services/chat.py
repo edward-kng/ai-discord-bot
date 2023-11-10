@@ -1,8 +1,9 @@
 import asyncio
 import json
 
-from discord_music_bot.domain.history import download_history, export_history
 from openai import OpenAI
+
+from ..history import download_history, export_history
 
 functions = [
     {

@@ -1,7 +1,10 @@
 import asyncio
+
 import discord
-from ..session import Session
+
 from ..idle_timer import start_idle_timer
+from ..session import Session
+
 
 class MusicService:
     def __init__(self, bot, spotify):

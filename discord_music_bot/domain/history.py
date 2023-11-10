@@ -1,7 +1,8 @@
 import json
 import os
-import requests
 from threading import Thread
+
+import requests
 
 
 def download(attachment, path):
