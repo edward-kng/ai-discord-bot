@@ -1,7 +1,9 @@
 import discord
 from ..bot import Bot
-from ...domain.history import export_history as export_history_logic
-from ...domain.services.chat import ChatService
+from discord_music_bot.logic.utils.chat.history import (
+    export_history as export_history_logic,
+)
+from ...logic.services.chat import ChatService
 
 
 def initChatCommands(bot: Bot, chat_service: ChatService) -> None:

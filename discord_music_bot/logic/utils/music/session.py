@@ -3,8 +3,7 @@ import random
 
 import discord
 
-from .spotify import get_audio, Spotify
-from .youtube_generic import YouTubeGeneric
+from discord_music_bot.logic.utils.music.music_fetcher import MusicFetcher
 
 
 class Session:
@@ -13,7 +12,7 @@ class Session:
         feedback_channel: discord.TextChannel,
         guild: discord.Guild,
         voice: discord.VoiceState,
-        spotify: Spotify,
+        music_fetcher: MusicFetcher,
     ) -> None:
         self._feedback_channel = feedback_channel
         self._guild = guild
@@ -33,7 +32,7 @@ class Session:
         self._download_ready = asyncio.Condition()
         self._playback_ready = asyncio.Condition()
 
-        self.spotify = spotify
+        self._music_fetcher = music_fetcher
 
     async def enqueue(self, query: str, shuffle=False, pos=0) -> None:
         metadata_list = await asyncio.to_thread(self._get_metadata, query)
@@ -109,7 +108,7 @@ class Session:
 
             self._download_queue.pop(0)
 
-    def _get_metadata(self, query: str) -> list[dict]:
+    def _get_metadata(self, query: str | discord.Attachment) -> list[dict]:
         if isinstance(query, discord.Attachment):
             return [
                 {
@@ -120,17 +119,10 @@ class Session:
                 }
             ]
 
-        if "spotify.com" in query:
-            return self.spotify.get_metadata(query)
+        return self._music_fetcher.get_metadata(query)
 
-        return YouTubeGeneric.get_metadata(query)
-
-    def _get_audio(self, song: dict) -> None:
-        if song["type"] == "spotify":
-            return get_audio(song)
-
-        if song["type"] == "youtube_generic":
-            return YouTubeGeneric.get_audio(song)
+    def _get_audio(self, song: dict) -> str | None:
+        return self._music_fetcher.get_audio(song)
 
     def pause_resume(self) -> None:
         self._paused = not self._paused
