@@ -28,9 +28,12 @@ class MusicService:
             self._sessions[guild] = Session(channel, guild, voice, self._spotify)
 
             self._idle_timers.add(
-                asyncio.create_task(start_idle_timer(self._sessions, guild)))
+                asyncio.create_task(start_idle_timer(self._sessions, guild))
+            )
 
-        asyncio.create_task(self._sessions[guild].enqueue(query=query, pos=pos, shuffle=shuffle))
+        asyncio.create_task(
+            self._sessions[guild].enqueue(query=query, pos=pos, shuffle=shuffle)
+        )
 
         return msg
 
@@ -41,7 +44,7 @@ class MusicService:
             return "Skipped!"
         else:
             return "Not in a voice channel!"
-        
+
     async def leave(self, guild):
         if guild in self._sessions:
             msg = "Bye!"
@@ -53,21 +56,21 @@ class MusicService:
             msg = "Not in a voice channel!"
 
         return msg
-    
+
     def pause_song(self, guild):
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Paused!"
-        
+
         return "Not in a voice channel!"
-    
+
     def resume_song(self, guild):
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Resumed!"
-        
+
         return "Not in a voice channel!"
-    
+
     def get_song_queue(self, guild):
         if guild in self._sessions:
             song_queue = self._sessions[guild].get_song_queue()

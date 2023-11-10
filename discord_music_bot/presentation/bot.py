@@ -9,15 +9,25 @@ class Bot(discord.Client):
 
     async def on_ready(self):
         print(str(self.user) + " connected!")
-        
+
         await self.tree.sync()
 
     async def on_message(self, message):
         mention = "<@" + str(self.user.id) + ">"
         name = self.user.name
 
-        if mention in message.content or message.reference \
-                and (await message.channel.fetch_message(message.reference.message_id)).author.id == self.user.id:
+        if (
+            mention in message.content
+            or message.reference
+            and (
+                await message.channel.fetch_message(message.reference.message_id)
+            ).author.id
+            == self.user.id
+        ):
             question = message.content.replace(mention, name)
 
-            await message.reply(await self.chat_service.answer(message.channel, question, message.author, message.channel.guild))
+            await message.reply(
+                await self.chat_service.answer(
+                    message.channel, question, message.author, message.channel.guild
+                )
+            )

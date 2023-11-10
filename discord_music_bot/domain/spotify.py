@@ -2,12 +2,11 @@ import yt_dlp
 
 
 def get_audio(song):
-    ytdl = yt_dlp.YoutubeDL({
-        "format": "bestaudio", "default_search": "ytsearch",
-        "noplaylist": True})
+    ytdl = yt_dlp.YoutubeDL(
+        {"format": "bestaudio", "default_search": "ytsearch", "noplaylist": True}
+    )
 
-    metadata = ytdl.extract_info(
-        song["query"], download=False)
+    metadata = ytdl.extract_info(song["query"], download=False)
 
     """
     For some reason, YouTube search sometimes returns completely
@@ -17,10 +16,13 @@ def get_audio(song):
     without searching for 'audio'.
     """
 
-    if len(metadata["entries"]) == 0 or song["track_title"].lower() not in metadata["entries"][0]["title"].lower():
+    if (
+        len(metadata["entries"]) == 0
+        or song["track_title"].lower() not in metadata["entries"][0]["title"].lower()
+    ):
         metadata = ytdl.extract_info(
-            song["query"].replace(
-                " audio", ""), download=False)
+            song["query"].replace(" audio", ""), download=False
+        )
 
     if len(metadata["entries"]) > 0:
         return metadata["entries"][0]["url"]
@@ -31,7 +33,8 @@ def get_audio(song):
 def _get_track_metadata(track):
     metadata = {
         "query": track["artists"][0]["name"],
-        "title": track["artists"][0]["name"]}
+        "title": track["artists"][0]["name"],
+    }
 
     for i in range(1, len(track["artists"])):
         metadata["title"] += ", " + track["artists"][i]["name"]
@@ -57,16 +60,15 @@ class Spotify:
 
         if self._spotify_client is None:
             return None
-        
+
         if "playlist" in url:
             try:
                 playlist = self._spotify_client.playlist_tracks(url)
             except:
                 return None
-            
+
             for track in playlist["items"]:
-                track_list.append(
-                    _get_track_metadata(track["track"]))
+                track_list.append(_get_track_metadata(track["track"]))
         elif "album" in url:
             try:
                 album = self._spotify_client.album_tracks(url)
@@ -74,8 +76,7 @@ class Spotify:
                 return None
 
             for track in album["items"]:
-                track_list.append(
-                    _get_track_metadata(track))
+                track_list.append(_get_track_metadata(track))
         else:
             try:
                 track = self._spotify_client.track(url)

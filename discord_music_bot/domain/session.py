@@ -34,7 +34,8 @@ class Session:
 
         if metadata_list is None:
             await self._feedback_channel.send(
-                "Error: could not find song or invalid URL!")
+                "Error: could not find song or invalid URL!"
+            )
 
             return
 
@@ -65,7 +66,7 @@ class Session:
     async def quit(self):
         if self._voice.is_playing():
             self._voice.stop()
-        
+
         await self._voice.disconnect()
 
         self._active = False
@@ -76,8 +77,7 @@ class Session:
         async with self._download_ready:
             self._download_ready.notify()
 
-        await asyncio.gather(
-            self._downloader, self._player)
+        await asyncio.gather(self._downloader, self._player)
 
     def get_song_queue(self):
         return self._play_queue + self._download_queue
@@ -94,8 +94,7 @@ class Session:
             song = self._download_queue[0]
 
             if "audio" not in song:
-                song["audio"] = await asyncio.to_thread(
-                    self._get_audio, song)
+                song["audio"] = await asyncio.to_thread(self._get_audio, song)
 
             self._play_queue.append(song)
 
@@ -106,18 +105,24 @@ class Session:
 
     def _get_metadata(self, query):
         if isinstance(query, discord.Attachment):
-            return [{"query": query, "audio": query.url,
-                    "title": query.filename, "type": "file"}]
+            return [
+                {
+                    "query": query,
+                    "audio": query.url,
+                    "title": query.filename,
+                    "type": "file",
+                }
+            ]
 
         if "spotify.com" in query:
             return self.spotify.get_metadata(query)
-        
+
         return YouTubeGeneric.get_metadata(query)
 
     def _get_audio(self, song):
         if song["type"] == "spotify":
             return get_audio(song)
-        
+
         if song["type"] == "youtube_generic":
             return YouTubeGeneric.get_audio(song)
 
@@ -149,19 +154,22 @@ class Session:
 
             if not self._active:
                 break
-                
+
             song = self._play_queue.pop(0)
             self._voice.play(
-                discord.FFmpegPCMAudio(song["audio"], before_options
-                ="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-                options='-vn'))
-            
+                discord.FFmpegPCMAudio(
+                    song["audio"],
+                    before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+                    options="-vn",
+                )
+            )
+
             await self._feedback_channel.send("Now playing: " + song["title"])
             self._now_playing = song["title"]
 
             while self._active and (self._voice.is_playing() or self._paused):
                 await asyncio.sleep(0.1)
-            
+
                 if self._skipped:
                     self._voice.stop()
                     self._skipped = False
