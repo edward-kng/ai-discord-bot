@@ -1,7 +1,8 @@
 import json
 import os
-import requests
 from threading import Thread
+
+import requests
 
 
 def download(attachment, path):
@@ -31,11 +32,13 @@ async def download_history(channel, limit=None, download_images=True):
     threads = []
 
     async for message in channel.history(limit=limit):
-        data = {"sender": {
-            "name": message.author.name,
-            "id": message.author.id,
-        }, "sent": str(message.created_at),
-            "messageContent": message.content
+        data = {
+            "sender": {
+                "name": message.author.name,
+                "id": message.author.id,
+            },
+            "sent": str(message.created_at),
+            "messageContent": message.content,
         }
 
         if message.edited_at is not None:
@@ -45,10 +48,7 @@ async def download_history(channel, limit=None, download_images=True):
             data["files"] = []
 
         for attachment in message.attachments:
-            file_data = {
-                "fileName": attachment.filename,
-                "url": attachment.url
-            }
+            file_data = {"fileName": attachment.filename, "url": attachment.url}
 
             data["files"].append(file_data)
 

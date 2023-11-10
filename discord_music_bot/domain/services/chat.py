@@ -1,8 +1,9 @@
 import asyncio
 import json
 
-from discord_music_bot.domain.history import download_history, export_history
 from openai import OpenAI
+
+from ..history import download_history, export_history
 
 functions = [
     {
@@ -13,23 +14,17 @@ functions = [
             "properties": {
                 "user_id": {
                     "type": "string",
-                    "description": "The ID of the user, usually found after an @ symbol."
+                    "description": "The ID of the user, usually found after an @ symbol.",
                 },
-                "message": {
-                    "type": "string",
-                    "description": "Message to send."
-                }
+                "message": {"type": "string", "description": "Message to send."},
             },
-            "required": ["user_id", "message"]
-        }
+            "required": ["user_id", "message"],
+        },
     },
     {
         "name": "export_chat_history",
         "description": "Back up and export the chat history",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "enqueue_song",
@@ -37,72 +32,54 @@ functions = [
         "parameters": {
             "type": "object",
             "properties": {
-                "query" : {
+                "query": {
                     "type": "string",
                     "description": "Song URL or search query.",
                 },
-                "shuffle" : {
+                "shuffle": {
                     "type": "boolean",
                     "description": """Whether to shuffle the requested 
                     playlist of songs. Has no effect on single songs. Defaults 
-                    to false."""
-                }
+                    to false.""",
+                },
             },
-            "required": ["query"]
-        }
+            "required": ["query"],
+        },
     },
     {
         "name": "skip_song",
         "description": "Skip the current song",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "get_now_playing_song",
         "description": "Get the name and artist of the current song playing",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "pause_song",
         "description": "Pause the current song",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "resume_song",
         "description": "Resume the current song",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "get_song_queue",
         "description": "The the current queue of songs to play",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "name": "leave",
         "description": "Leave the voice chat and stop all playing music",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
-    }
+        "parameters": {"type": "object", "properties": {}},
+    },
 ]
 
-class ChatService:
 
+class ChatService:
     def __init__(self, bot, openai_client, music_service):
         self.memory = 10
         self.bot = bot
@@ -118,7 +95,9 @@ class ChatService:
         )
 
         async with channel.typing():
-            return await self.create_completion(chat_history, question, user, guild, channel)
+            return await self.create_completion(
+                chat_history, question, user, guild, channel
+            )
 
     async def dm_user(self, user_id, msg):
         user = await self.bot.fetch_user(user_id)
@@ -129,23 +108,27 @@ class ChatService:
         chat_history["messages"].pop(0)
 
         for message in reversed(chat_history["messages"]):
-            history_prompt += message["sender"]["name"] + " said: " + message["messageContent"] + "\n"
-
+            history_prompt += (
+                message["sender"]["name"] + " said: " + message["messageContent"] + "\n"
+            )
 
         data = await asyncio.to_thread(
-            self._openai_client.chat.completions.create, model="gpt-4",
+            self._openai_client.chat.completions.create,
+            model="gpt-4",
             messages=[
                 {
                     "role": "system",
-                    "content":
-                        "You are a Discord bot that chats with users. Your name is " + self.bot.user.name
-                        + ". Below is a transcript of "
-                        + "the conversation so far:\n" + history_prompt
+                    "content": "You are a Discord bot that chats with users. Your name is "
+                    + self.bot.user.name
+                    + ". Below is a transcript of "
+                    + "the conversation so far:\n"
+                    + history_prompt,
                 },
-                {"role": "user", "content": question}
+                {"role": "user", "content": question},
             ],
-            functions=functions)
-    
+            functions=functions,
+        )
+
         data = data.choices[0]
         msg = data.message.content
         call = data.message.function_call
@@ -162,7 +145,13 @@ class ChatService:
                 asyncio.create_task(export_history(channel))
             elif fun == "enqueue_song":
                 msg = await self._music_service.enqueue_song(
-                    args["query"], 0, user, guild, channel, args["shuffle"] if "shuffle" in args else False)
+                    args["query"],
+                    0,
+                    user,
+                    guild,
+                    channel,
+                    args["shuffle"] if "shuffle" in args else False,
+                )
             elif fun == "get_now_playing_song":
                 msg = self._music_service.get_now_playing_song(guild)
             elif fun == "skip_song":

@@ -3,13 +3,14 @@ import os
 import discord
 import spotipy
 from dotenv import load_dotenv
-from .presentation.bot import Bot
-from .domain.spotify import Spotify
-from .domain.services.music import MusicService
-from discord_music_bot.domain.services.chat import ChatService
-from .presentation.commands.music import initMusicCommands
-from .presentation.commands.chat import initChatCommands
 from openai import OpenAI
+
+from .domain.services.chat import ChatService
+from .domain.services.music import MusicService
+from .domain.spotify import Spotify
+from .presentation.bot import Bot
+from .presentation.commands.chat import initChatCommands
+from .presentation.commands.music import initMusicCommands
 
 
 class App:
@@ -24,17 +25,17 @@ class App:
         SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
         SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
         spotify_client = spotipy.Spotify(
-            client_credentials_manager
-            =spotipy.oauth2.SpotifyClientCredentials(
-                client_id=SPOTIPY_CLIENT_ID,
-                client_secret=SPOTIPY_CLIENT_SECRET))
+            client_credentials_manager=spotipy.oauth2.SpotifyClientCredentials(
+                client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
+            )
+        )
 
         spotify = Spotify(spotify_client)
 
         OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 
         if OPENAI_KEY:
-            openai_client = OpenAI(api_key = OPENAI_KEY)
+            openai_client = OpenAI(api_key=OPENAI_KEY)
         else:
             openai_client = None
 
@@ -43,6 +44,6 @@ class App:
         self.bot.chat_service = chat_service
         initMusicCommands(self.bot, spotify, music_service)
         initChatCommands(self.bot, chat_service)
-    
+
     def run(self):
-        self.bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+        self.bot.run(os.getenv("DISCORD_BOT_TOKEN"))
