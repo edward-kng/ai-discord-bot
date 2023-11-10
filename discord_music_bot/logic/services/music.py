@@ -2,7 +2,6 @@ import asyncio
 
 import discord
 
-from discord_music_bot.logic.utils.music.idle_timer import start_idle_timer
 from discord_music_bot.logic.utils.music.session import Session
 from ..utils.music.music_fetcher import MusicFetcher
 from ...presentation.bot import Bot
@@ -13,7 +12,6 @@ class MusicService:
         self._bot = bot
         self._music_fetcher = music_fetcher
         self._sessions = {}
-        self._idle_timers = set()
 
     async def enqueue_song(
         self,
@@ -37,9 +35,7 @@ class MusicService:
             voice = discord.utils.get(self._bot.voice_clients, guild=guild)
             self._sessions[guild] = Session(channel, guild, voice, self._music_fetcher)
 
-            self._idle_timers.add(
-                asyncio.create_task(start_idle_timer(self._sessions, guild))
-            )
+            asyncio.create_task(self.start_idle_timer(guild))
 
         asyncio.create_task(
             self._sessions[guild].enqueue(query=query, pos=pos, shuffle=shuffle)
@@ -107,3 +103,21 @@ class MusicService:
                 return "Now playing: " + song
 
         return "No song playing!"
+
+    async def start_idle_timer(self, guild: discord.Guild) -> None:
+        session = self._sessions[guild]
+
+        while session.is_active():
+            idle_secs = 0
+
+            await asyncio.sleep(0.1)
+
+            while not session.is_playing() and session.is_active():
+                await asyncio.sleep(1)
+
+                idle_secs += 1
+
+                if idle_secs >= 300:
+                    await session.quit()
+
+                    self._sessions.pop(guild)
