@@ -1,6 +1,6 @@
 import discord
 from ..bot import Bot
-from discord_music_bot.logic.utils.chat.history import (
+from discord_music_bot.logic.utils.chat.chat import (
     export_history as export_history_logic,
 )
 from ...logic.services.chat import ChatService

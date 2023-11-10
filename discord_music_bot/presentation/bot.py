@@ -12,12 +12,15 @@ class Bot(discord.Client):
 
         await self.tree.sync()
 
+    def mentions(self, message: discord.Message):
+        return "<@" + str(self.user.id) + ">" in message.content
+
     async def on_message(self, message: discord.Message) -> None:
         mention = "<@" + str(self.user.id) + ">"
         name = self.user.name
 
         if (
-            mention in message.content
+            self.mentions(message)
             or message.reference
             and (
                 await message.channel.fetch_message(message.reference.message_id)

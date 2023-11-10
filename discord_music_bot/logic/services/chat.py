@@ -1,11 +1,17 @@
 import asyncio
 import json
+from threading import Thread
 
 import discord
+import requests
 from openai import OpenAI
 
 from .music import MusicService
-from discord_music_bot.logic.utils.chat.history import download_history, export_history
+from discord_music_bot.logic.utils.chat.chat import (
+    download_history,
+    export_history,
+    parse_message,
+)
 from ...presentation.bot import Bot
 
 functions = [
@@ -101,9 +107,7 @@ class ChatService:
         if not self._openai_client:
             return "Chat not enabled!"
 
-        chat_history = await download_history(
-            channel, limit=self.memory, download_images=False
-        )
+        chat_history = await self.get_chat_thread(channel)
 
         async with channel.typing():
             return await self.create_completion(
@@ -184,3 +188,21 @@ class ChatService:
                 msg = await self._music_service.leave(guild)
 
         return msg
+
+    async def get_chat_thread(self, channel: discord.TextChannel):
+        history = {"messages": []}
+        found_start = False
+        i = self.memory
+
+        async for message in channel.history():
+            history["messages"].append(parse_message(message, [], "", False))
+
+            if not found_start and self.bot.mentions(message):
+                found_start = True
+            elif found_start:
+                i -= 1
+
+            if found_start and i <= 0:
+                break
+
+        return history
