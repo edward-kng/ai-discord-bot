@@ -3,7 +3,7 @@ import yt_dlp
 
 class YouTubeGeneric:
     @staticmethod
-    def get_metadata(query: str) -> list[dict]:
+    def get_metadata(query: str) -> list[dict] | None:
         track_list = []
 
         if "youtube.com" in query:

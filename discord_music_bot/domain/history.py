@@ -6,14 +6,14 @@ import discord
 import requests
 
 
-def download(attachment: discord.Attachment, path: str):
+def download(attachment: discord.Attachment, path: str) -> None:
     response = requests.get(attachment.url)
 
     with open(str(path) + "/files/" + attachment.filename, "wb") as file:
         file.write(response.content)
 
 
-async def export_history(channel: discord.TextChannel):
+async def export_history(channel: discord.TextChannel) -> None:
     path = "chat-history/" + str(channel.id)
 
     if not os.path.exists(path + "/files"):

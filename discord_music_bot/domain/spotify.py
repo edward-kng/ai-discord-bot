@@ -56,7 +56,7 @@ class Spotify:
     def __init__(self, spotify_client: spotipy.Spotify) -> None:
         self._spotify_client = spotify_client
 
-    def get_metadata(self, url: str) -> list[dict]:
+    def get_metadata(self, url: str) -> list[dict] | None:
         track_list = []
 
         if self._spotify_client is None:

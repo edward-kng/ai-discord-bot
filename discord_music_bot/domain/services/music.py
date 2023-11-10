@@ -45,7 +45,7 @@ class MusicService:
 
         return msg
 
-    async def skip_song(self, guild) -> str:
+    async def skip_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             await self._sessions[guild].skip()
 
@@ -53,7 +53,7 @@ class MusicService:
         else:
             return "Not in a voice channel!"
 
-    async def leave(self, guild) -> str:
+    async def leave(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             msg = "Bye!"
 
@@ -65,21 +65,21 @@ class MusicService:
 
         return msg
 
-    def pause_song(self, guild) -> str:
+    def pause_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Paused!"
 
         return "Not in a voice channel!"
 
-    def resume_song(self, guild) -> str:
+    def resume_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             self._sessions[guild].pause_resume()
             return "Resumed!"
 
         return "Not in a voice channel!"
 
-    def get_song_queue(self, guild) -> str:
+    def get_song_queue(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             song_queue = self._sessions[guild].get_song_queue()
 
@@ -97,7 +97,7 @@ class MusicService:
             return msg
         return "No songs queued!"
 
-    def get_now_playing_song(self, guild) -> str:
+    def get_now_playing_song(self, guild: discord.Guild) -> str:
         if guild in self._sessions:
             song = self._sessions[guild].get_now_playing()
 

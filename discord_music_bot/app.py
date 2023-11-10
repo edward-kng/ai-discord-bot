@@ -20,7 +20,6 @@ class App:
         intents = discord.Intents.default()
         intents.message_content = True
         self.bot = Bot(intents, None)
-        spotify = None
 
         SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
         SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
@@ -42,7 +41,7 @@ class App:
         music_service = MusicService(self.bot, spotify)
         chat_service = ChatService(self.bot, openai_client, music_service)
         self.bot.chat_service = chat_service
-        initMusicCommands(self.bot, spotify, music_service)
+        initMusicCommands(self.bot, music_service)
         initChatCommands(self.bot, chat_service)
 
     def run(self) -> None:
