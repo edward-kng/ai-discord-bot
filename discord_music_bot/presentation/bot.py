@@ -1,8 +1,10 @@
 import discord
 
+from ..domain.services.chat import ChatService
+
 
 class Bot(discord.Client):
-    def __init__(self, i, chat_service):
+    def __init__(self, i: discord.Intents, chat_service: ChatService):
         super().__init__(intents=i)
         self.tree = discord.app_commands.CommandTree(self)
         self.chat_service = chat_service
@@ -12,7 +14,7 @@ class Bot(discord.Client):
 
         await self.tree.sync()
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         mention = "<@" + str(self.user.id) + ">"
         name = self.user.name
 

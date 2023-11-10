@@ -1,9 +1,11 @@
 import typing
 
 import discord
+from ...domain.spotify import Spotify
+from ...domain.services.music import MusicService
 
 
-def initMusicCommands(bot, spotify, music_service):
+def initMusicCommands(bot, spotify: Spotify, music_service: MusicService):
     @bot.tree.command()
     async def play(
         interaction: discord.Interaction, song: str, pos: typing.Optional[int]

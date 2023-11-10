@@ -13,7 +13,15 @@ class MusicService:
         self._sessions = {}
         self._idle_timers = set()
 
-    async def enqueue_song(self, query, pos, user, guild, channel, shuffle=False):
+    async def enqueue_song(
+        self,
+        query,
+        pos: int,
+        user: discord.User | discord.Member,
+        guild: discord.Guild,
+        channel: discord.TextChannel,
+        shuffle=False,
+    ):
         user_voice = user.voice
 
         if not user_voice and guild not in self._sessions:

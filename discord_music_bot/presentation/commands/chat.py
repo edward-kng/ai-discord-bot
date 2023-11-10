@@ -1,9 +1,10 @@
 import discord
-
+from ..bot import Bot
 from ...domain.history import export_history as export_history_logic
+from ...domain.services.chat import ChatService
 
 
-def initChatCommands(bot, chat_service):
+def initChatCommands(bot: Bot, chat_service: ChatService):
     @bot.tree.command()
     async def say(interaction: discord.Interaction, msg: str):
         await interaction.response.send_message(msg)

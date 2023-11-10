@@ -8,7 +8,13 @@ from .youtube_generic import YouTubeGeneric
 
 
 class Session:
-    def __init__(self, feedback_channel, guild, voice, spotify):
+    def __init__(
+        self,
+        feedback_channel: discord.TextChannel,
+        guild: discord.Guild,
+        voice,
+        spotify,
+    ):
         self._feedback_channel = feedback_channel
         self._guild = guild
         self._voice = voice
@@ -29,7 +35,7 @@ class Session:
 
         self.spotify = spotify
 
-    async def enqueue(self, query, shuffle=False, pos=0):
+    async def enqueue(self, query: str, shuffle=False, pos=0):
         metadata_list = await asyncio.to_thread(self._get_metadata, query)
 
         if metadata_list is None:
@@ -103,7 +109,7 @@ class Session:
 
             self._download_queue.pop(0)
 
-    def _get_metadata(self, query):
+    def _get_metadata(self, query: str):
         if isinstance(query, discord.Attachment):
             return [
                 {
@@ -119,7 +125,7 @@ class Session:
 
         return YouTubeGeneric.get_metadata(query)
 
-    def _get_audio(self, song):
+    def _get_audio(self, song: dict):
         if song["type"] == "spotify":
             return get_audio(song)
 
