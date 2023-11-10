@@ -83,7 +83,9 @@ functions = [
 
 
 class ChatService:
-    def __init__(self, bot: Bot, openai_client: OpenAI, music_service: MusicService):
+    def __init__(
+        self, bot: Bot, openai_client: OpenAI, music_service: MusicService
+    ) -> None:
         self.memory = 10
         self.bot = bot
         self._music_service = music_service
@@ -95,7 +97,7 @@ class ChatService:
         question: str,
         user: discord.User | discord.Member,
         guild: discord.Guild,
-    ):
+    ) -> str:
         if not self._openai_client:
             return "Chat not enabled!"
 
@@ -108,7 +110,7 @@ class ChatService:
                 chat_history, question, user, guild, channel
             )
 
-    async def dm_user(self, user_id: int, msg: str):
+    async def dm_user(self, user_id: int, msg: str) -> None:
         user = await self.bot.fetch_user(user_id)
         await user.send(msg)
 
@@ -119,7 +121,7 @@ class ChatService:
         user: discord.User | discord.Member,
         guild: discord.Guild,
         channel: discord.TextChannel,
-    ):
+    ) -> str:
         history_prompt = ""
         chat_history["messages"].pop(0)
 
