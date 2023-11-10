@@ -2,7 +2,7 @@ import yt_dlp
 import spotipy
 
 
-def get_audio(song: dict):
+def get_audio(song: dict) -> dict | None:
     ytdl = yt_dlp.YoutubeDL(
         {"format": "bestaudio", "default_search": "ytsearch", "noplaylist": True}
     )
@@ -31,7 +31,7 @@ def get_audio(song: dict):
     return None
 
 
-def _get_track_metadata(track: dict):
+def _get_track_metadata(track: dict) -> dict:
     metadata = {
         "query": track["artists"][0]["name"],
         "title": track["artists"][0]["name"],
@@ -53,10 +53,10 @@ def _get_track_metadata(track: dict):
 
 
 class Spotify:
-    def __init__(self, spotify_client: spotipy.Spotify):
+    def __init__(self, spotify_client: spotipy.Spotify) -> None:
         self._spotify_client = spotify_client
 
-    def get_metadata(self, url: str):
+    def get_metadata(self, url: str) -> list[dict]:
         track_list = []
 
         if self._spotify_client is None:

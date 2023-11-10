@@ -3,7 +3,7 @@ import yt_dlp
 
 class YouTubeGeneric:
     @staticmethod
-    def get_metadata(query: str):
+    def get_metadata(query: str) -> list[dict]:
         track_list = []
 
         if "youtube.com" in query:
@@ -57,7 +57,7 @@ class YouTubeGeneric:
         return track_list
 
     @staticmethod
-    def get_audio(song: dict):
+    def get_audio(song: dict) -> dict:
         ytdl = yt_dlp.YoutubeDL(
             {"format": "best", "default_search": "ytsearch", "noplaylist": True}
         )

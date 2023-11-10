@@ -14,7 +14,7 @@ from .presentation.commands.music import initMusicCommands
 
 
 class App:
-    def __init__(self):
+    def __init__(self) -> None:
         load_dotenv()
 
         intents = discord.Intents.default()
@@ -45,5 +45,5 @@ class App:
         initMusicCommands(self.bot, spotify, music_service)
         initChatCommands(self.bot, chat_service)
 
-    def run(self):
+    def run(self) -> None:
         self.bot.run(os.getenv("DISCORD_BOT_TOKEN"))

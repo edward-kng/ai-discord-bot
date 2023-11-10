@@ -29,7 +29,7 @@ async def export_history(channel: discord.TextChannel):
 
 async def download_history(
     channel: discord.TextChannel, limit=None, download_images=True
-):
+) -> dict:
     path = "chat-history/" + str(channel.id)
     history = {"messages": []}
     threads = []

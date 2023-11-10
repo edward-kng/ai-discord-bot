@@ -5,7 +5,7 @@ from .session import Session
 
 async def start_idle_timer(
     sessions: dict[discord.Guild, Session], guild: discord.Guild
-):
+) -> None:
     session = sessions[guild]
 
     while session.is_active():
