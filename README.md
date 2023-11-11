@@ -29,6 +29,7 @@ playlist
 - `/export_history` - export entire chat history to a JSON file
 - `/memory <nr of messages>` - set number of previous messages to remember 
 (default 10)
+- `/generate-image <prompt>` - generate an image
 
 ## Setup
 

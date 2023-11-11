@@ -23,3 +23,9 @@ def initChatCommands(bot: Bot, chat_service: ChatService) -> None:
         await interaction.response.send_message(
             "Memory set to " + str(nr) + " messages!"
         )
+
+    @bot.tree.command()
+    async def generate_image(interaction: discord.Interaction, prompt: str) -> None:
+        channel = interaction.channel
+        await interaction.response.send_message("Generating image: " + prompt)
+        await channel.send(await chat_service.generate_image(prompt))
