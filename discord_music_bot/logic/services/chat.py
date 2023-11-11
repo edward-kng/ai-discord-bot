@@ -36,6 +36,20 @@ functions = [
         "parameters": {"type": "object", "properties": {}},
     },
     {
+        "name": "generate_image",
+        "description": "Generate an image from a text prompt",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "prompt": {
+                    "type": "string",
+                    "description": "Prompt to generate image from",
+                }
+            },
+            "required": ["prompt"],
+        },
+    },
+    {
         "name": "enqueue_song",
         "description": "Enqueue a song to play",
         "parameters": {
@@ -165,6 +179,8 @@ class ChatService:
             elif fun == "export_chat_history":
                 msg = "Okay! Just a moment."
                 asyncio.create_task(export_history(channel))
+            elif fun == "generate_image":
+                msg = await self.generate_image(args["prompt"])
             elif fun == "enqueue_song":
                 msg = await self._music_service.enqueue_song(
                     args["query"],
@@ -206,3 +222,15 @@ class ChatService:
                 break
 
         return history
+
+    async def generate_image(self, prompt: str) -> str:
+        response = await asyncio.to_thread(
+            self._openai_client.images.generate,
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+
+        return response.data[0].url
