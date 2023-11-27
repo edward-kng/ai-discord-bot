@@ -24,11 +24,15 @@ class App:
 
         SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
         SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-        spotify_client = spotipy.Spotify(
-            client_credentials_manager=spotipy.oauth2.SpotifyClientCredentials(
-                client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
+
+        if SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET:
+            spotify_client = spotipy.Spotify(
+                client_credentials_manager=spotipy.oauth2.SpotifyClientCredentials(
+                    client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
+                )
             )
-        )
+        else:
+            spotify_client = None
 
         music_fetcher = MusicFetcher(YouTubeRepository(), spotify_client)
 
