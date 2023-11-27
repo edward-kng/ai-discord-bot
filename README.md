@@ -64,6 +64,13 @@ DISCORD_BOT_TOKEN=<your token>
 sh run.sh
 ```
 
+### Install as a systemd service
+
+Simply run:
+```sh
+curl -s https://raw.githubusercontent.com/edward-kng/ai-discord-bot/main/install.sh | sudo bash -
+```
+
 ### Enabling Chat Features
 
 1. Get an OpenAI API key and top up your account at 

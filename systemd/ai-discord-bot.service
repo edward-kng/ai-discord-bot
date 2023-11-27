@@ -1,0 +1,11 @@
+[Unit]
+Description="AI Discord Bot"
+
+[Service]
+ExecStart=/var/lib/ai-discord-bot/run.sh
+User=ai-discord-bot
+Group=ai-discord-bot
+WorkingDirectory=/var/lib/ai-discord-bot
+
+[Install]
+WantedBy=multi-user.target
