@@ -4,7 +4,7 @@ INSTALL_DIR=/var/lib/ai-discord-bot
 NAME=ai-discord-bot
 SERVICE=$NAME.service
 
-read -p "Enter Discord bot token: " env
+read -p "Enter Discord bot token: " env < /dev/tty
 
 rm -rf $INSTALL_DIR
 rm -f /etc/systemd/system/$SERVICE
