@@ -10,7 +10,7 @@ rm -rf $INSTALL_DIR
 rm -f /etc/systemd/system/$SERVICE
 git clone https://github.com/edward-kng/ai-discord-bot.git $INSTALL_DIR
 echo DISCORD_BOT_TOKEN=$env > $INSTALL_DIR/.env
-useradd $NAME
+useradd $NAME -s /bin/bash
 chown -R $NAME:$NAME $INSTALL_DIR
 chmod +x $INSTALL_DIR/run.sh
 ln -s $INSTALL_DIR/systemd/$SERVICE /etc/systemd/system/$SERVICE
