@@ -64,11 +64,18 @@ DISCORD_BOT_TOKEN=<your token>
 sh run.sh
 ```
 
-### Install as a systemd service
+### Run as systemd service
 
-Simply run:
+To install as a systemd service, simply run:
+
 ```sh
 curl -s https://raw.githubusercontent.com/edward-kng/ai-discord-bot/main/install.sh | sudo bash -
+```
+
+To uninstall:
+
+```sh
+curl -s https://raw.githubusercontent.com/edward-kng/ai-discord-bot/main/uninstall.sh | sudo bash -
 ```
 
 ### Enabling Chat Features
