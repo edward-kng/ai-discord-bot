@@ -6,10 +6,6 @@ from discord_music_bot.data.repositories.youtube import YouTubeRepository
 
 
 def _get_track_metadata(track: dict) -> Song:
-    metadata = {
-        "query": track["artists"][0]["name"],
-        "title": track["artists"][0]["name"],
-    }
     metadata = Song(track["artists"][0]["name"], None, track["artists"][0]["name"], "spotify", track["name"])
 
     for i in range(1, len(track["artists"])):
