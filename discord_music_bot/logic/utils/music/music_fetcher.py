@@ -6,7 +6,13 @@ from discord_music_bot.data.repositories.youtube import YouTubeRepository
 
 
 def _get_track_metadata(track: dict) -> Song:
-    metadata = Song(track["artists"][0]["name"], None, track["artists"][0]["name"], "spotify", track["name"])
+    metadata = Song(
+        track["artists"][0]["name"],
+        None,
+        track["artists"][0]["name"],
+        "spotify",
+        track["name"],
+    )
 
     for i in range(1, len(track["artists"])):
         metadata.title += ", " + track["artists"][i]["name"]
@@ -38,9 +44,13 @@ class MusicFetcher:
 
             if "entries" in metadata:
                 for entry in metadata["entries"]:
-                    track_list.append(Song(entry["url"], None, entry["title"], "youtube_generic"))
+                    track_list.append(
+                        Song(entry["url"], None, entry["title"], "youtube_generic")
+                    )
             else:
-                track_list.append(Song(query, None, metadata["title"], "youtube_generic"))
+                track_list.append(
+                    Song(query, None, metadata["title"], "youtube_generic")
+                )
         elif "spotify.com" in query:
             track_list = []
 
@@ -83,7 +93,9 @@ class MusicFetcher:
             if "entries" in metadata:
                 metadata = metadata["entries"][0]
 
-            track_list.append(Song(query, metadata["url"], metadata["title"], "youtube_generic"))
+            track_list.append(
+                Song(query, metadata["url"], metadata["title"], "youtube_generic")
+            )
 
         return track_list
 
