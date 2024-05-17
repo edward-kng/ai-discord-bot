@@ -4,6 +4,7 @@ import random
 import discord
 
 from discord_music_bot.logic.utils.music.music_fetcher import MusicFetcher
+from discord_music_bot.logic.utils.music.song import Song
 
 
 class Session:
@@ -21,8 +22,8 @@ class Session:
         self._downloader = asyncio.create_task(self._start_downloader())
         self._player = asyncio.create_task(self._start_playback())
 
-        self._download_queue = []
-        self._play_queue = []
+        self._download_queue: list[Song] = []
+        self._play_queue: list[Song] = []
 
         self._active = True
         self._paused = False
@@ -57,7 +58,7 @@ class Session:
         msg = "Added to queue: "
 
         for i in range(min(3, len(metadata_list))):
-            msg += "\n" + metadata_list[i]["title"]
+            msg += "\n" + metadata_list[i].title
 
         if len(metadata_list) > 3:
             msg += "\n..."
@@ -84,7 +85,7 @@ class Session:
 
         await asyncio.gather(self._downloader, self._player)
 
-    def get_song_queue(self) -> list[dict]:
+    def get_song_queue(self) -> list[Song]:
         return self._play_queue + self._download_queue
 
     async def _start_downloader(self) -> None:
@@ -98,8 +99,8 @@ class Session:
 
             song = self._download_queue[0]
 
-            if "audio" not in song:
-                song["audio"] = await asyncio.to_thread(self._get_audio, song)
+            if not song.audio:
+                song.audio = await asyncio.to_thread(self._get_audio, song)
 
             self._play_queue.append(song)
 
@@ -108,20 +109,13 @@ class Session:
 
             self._download_queue.pop(0)
 
-    def _get_metadata(self, query: str | discord.Attachment) -> list[dict]:
+    def _get_metadata(self, query: str | discord.Attachment) -> list[Song]:
         if isinstance(query, discord.Attachment):
-            return [
-                {
-                    "query": query,
-                    "audio": query.url,
-                    "title": query.filename,
-                    "type": "file",
-                }
-            ]
+            return [Song(query, query.url, query.filename, "file")]
 
         return self._music_fetcher.get_metadata(query)
 
-    def _get_audio(self, song: dict) -> str | None:
+    def _get_audio(self, song: Song) -> str | None:
         return self._music_fetcher.get_audio(song)
 
     def pause_resume(self) -> None:
@@ -156,14 +150,14 @@ class Session:
             song = self._play_queue.pop(0)
             self._voice.play(
                 discord.FFmpegPCMAudio(
-                    song["audio"],
+                    song.audio,
                     before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
                     options="-vn",
                 )
             )
 
-            await self._feedback_channel.send("Now playing: " + song["title"])
-            self._now_playing = song["title"]
+            await self._feedback_channel.send("Now playing: " + song.title)
+            self._now_playing = song.title
 
             while self._active and (self._voice.is_playing() or self._paused):
                 await asyncio.sleep(0.1)

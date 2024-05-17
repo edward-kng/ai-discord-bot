@@ -11,7 +11,7 @@ class MusicService:
     def __init__(self, bot: Bot, music_fetcher: MusicFetcher) -> None:
         self._bot = bot
         self._music_fetcher = music_fetcher
-        self._sessions = {}
+        self._sessions: dict[Session] = {}
 
     async def enqueue_song(
         self,
@@ -85,12 +85,12 @@ class MusicService:
                 msg = "Next 10 song in queue:"
 
                 for i in range(10):
-                    msg += "\n" + str(i + 1) + ". " + song_queue[i]["title"]
+                    msg += "\n" + str(i + 1) + ". " + song_queue[i].title
             else:
                 msg = "Queue:"
 
                 for i in range(len(song_queue)):
-                    msg += "\n" + str(i + 1) + ". " + song_queue[i]["title"]
+                    msg += "\n" + str(i + 1) + ". " + song_queue[i].title
 
             return msg
         return "No songs queued!"
