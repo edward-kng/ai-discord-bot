@@ -1,26 +1,27 @@
+from discord_music_bot.logic.utils.music.song import Song
 import yt_dlp
 from spotipy import Spotify
 
 from discord_music_bot.data.repositories.youtube import YouTubeRepository
 
 
-def _get_track_metadata(track: dict) -> dict:
-    metadata = {
-        "query": track["artists"][0]["name"],
-        "title": track["artists"][0]["name"],
-    }
+def _get_track_metadata(track: dict) -> Song:
+    metadata = Song(
+        track["artists"][0]["name"],
+        None,
+        track["artists"][0]["name"],
+        "spotify",
+        track["name"],
+    )
 
     for i in range(1, len(track["artists"])):
-        metadata["title"] += ", " + track["artists"][i]["name"]
-        metadata["query"] += " " + track["artists"][i]["name"]
+        metadata.title += ", " + track["artists"][i]["name"]
+        metadata.query += " " + track["artists"][i]["name"]
 
-    metadata["title"] += " - " + track["name"]
+    metadata.title += " - " + track["name"]
 
     # Add 'audio' to query to avoid downloading music videos
-    metadata["query"] += " " + track["name"] + " audio"
-
-    metadata["type"] = "spotify"
-    metadata["track_title"] = track["name"]
+    metadata.query += " " + track["name"] + " audio"
 
     return metadata
 
@@ -32,7 +33,7 @@ class MusicFetcher:
         self._youtube_repository = youtube_repository
         self._spotify_client = spotify_client
 
-    def get_metadata(self, query: str) -> list[dict] | None:
+    def get_metadata(self, query: str) -> list[Song] | None:
         track_list = []
 
         if "youtube.com" in query:
@@ -44,19 +45,11 @@ class MusicFetcher:
             if "entries" in metadata:
                 for entry in metadata["entries"]:
                     track_list.append(
-                        {
-                            "query": entry["url"],
-                            "title": entry["title"],
-                            "type": "youtube_generic",
-                        }
+                        Song(entry["url"], None, entry["title"], "youtube_generic")
                     )
             else:
                 track_list.append(
-                    {
-                        "query": query,
-                        "title": metadata["title"],
-                        "type": "youtube_generic",
-                    }
+                    Song(query, None, metadata["title"], "youtube_generic")
                 )
         elif "spotify.com" in query:
             track_list = []
@@ -101,18 +94,13 @@ class MusicFetcher:
                 metadata = metadata["entries"][0]
 
             track_list.append(
-                {
-                    "query": query,
-                    "audio": metadata["url"],
-                    "title": metadata["title"],
-                    "type": "youtube_generic",
-                }
+                Song(query, metadata["url"], metadata["title"], "youtube_generic")
             )
 
         return track_list
 
-    def get_audio(self, song: dict) -> str | None:
-        if song["type"] == "spotify":
+    def get_audio(self, song: Song) -> str | None:
+        if song.type == "spotify":
             ytdl = yt_dlp.YoutubeDL(
                 {
                     "format": "bestaudio",
@@ -121,7 +109,7 @@ class MusicFetcher:
                 }
             )
 
-            metadata = ytdl.extract_info(song["query"], download=False)
+            metadata = ytdl.extract_info(song.query, download=False)
 
             """
             For some reason, YouTube search sometimes returns completely
@@ -133,11 +121,11 @@ class MusicFetcher:
 
             if (
                 len(metadata["entries"]) == 0
-                or song["track_title"].lower()
+                or song.track_title.lower()
                 not in metadata["entries"][0]["title"].lower()
             ):
                 metadata = ytdl.extract_info(
-                    song["query"].replace(" audio", ""), download=False
+                    song.query.replace(" audio", ""), download=False
                 )
 
             if len(metadata["entries"]) > 0:
@@ -145,4 +133,4 @@ class MusicFetcher:
 
             return None
 
-        return self._youtube_repository.get_audio_stream((song["query"]))
+        return self._youtube_repository.get_audio_stream((song.query))
