@@ -22,7 +22,6 @@ class Session:
         self._downloader = asyncio.create_task(self._start_downloader())
         self._player = asyncio.create_task(self._start_playback())
 
-        self._download_queue: list[Song] = []
         self._play_queue: list[Song] = []
 
         self._active = True
@@ -50,7 +49,7 @@ class Session:
         if shuffle:
             random.shuffle(metadata_list)
 
-        self._download_queue.extend(metadata_list)
+        self._play_queue.extend(metadata_list)
 
         async with self._download_ready:
             self._download_ready.notify()
@@ -86,28 +85,34 @@ class Session:
         await asyncio.gather(self._downloader, self._player)
 
     def get_song_queue(self) -> list[Song]:
-        return self._play_queue + self._download_queue
+        return self._play_queue
 
     async def _start_downloader(self) -> None:
+        i = 0
+
         while self._active:
-            if len(self._download_queue) == 0:
+            if i >= len(self._play_queue) and (
+                not self._play_queue or self._play_queue[0].audio
+            ):
                 async with self._download_ready:
                     await self._download_ready.wait()
+                i = 0
+            elif not self._play_queue[0].audio:
+                i = 0
+            elif self._play_queue[i].audio:
+                i += 1
+                continue
+
+            song = self._play_queue[i]
 
             if not self._active:
                 break
 
-            song = self._download_queue[0]
+            song.audio = await asyncio.to_thread(self._get_audio, song)
 
-            if not song.audio:
-                song.audio = await asyncio.to_thread(self._get_audio, song)
-
-            self._play_queue.append(song)
-
-            async with self._playback_ready:
-                self._playback_ready.notify()
-
-            self._download_queue.pop(0)
+            if song == self._play_queue[0]:
+                async with self._playback_ready:
+                    self._playback_ready.notify()
 
     def _get_metadata(self, query: str | discord.Attachment) -> list[Song]:
         if isinstance(query, discord.Attachment):
@@ -140,7 +145,7 @@ class Session:
 
     async def _start_playback(self) -> None:
         while self._active:
-            if len(self._play_queue) == 0:
+            if len(self._play_queue) == 0 or not self._play_queue[0].audio:
                 async with self._playback_ready:
                     await self._playback_ready.wait()
 
