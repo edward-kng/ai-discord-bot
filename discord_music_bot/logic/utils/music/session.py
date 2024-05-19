@@ -5,6 +5,7 @@ import discord
 
 from discord_music_bot.logic.utils.music.music_fetcher import MusicFetcher
 from discord_music_bot.logic.utils.music.song import Song
+from collections import deque
 
 
 class Session:
@@ -22,8 +23,8 @@ class Session:
         self._downloader = asyncio.create_task(self._start_downloader())
         self._player = asyncio.create_task(self._start_playback())
 
-        self._download_queue: list[Song] = []
-        self._play_queue: list[Song] = []
+        self._download_queue: deque[Song] = deque()
+        self._play_queue: deque[Song] = deque()
 
         self._active = True
         self._paused = False
@@ -51,8 +52,8 @@ class Session:
             random.shuffle(metadata_list)
 
         if play_next:
-            self._download_queue = metadata_list + self._download_queue
-            self._play_queue = metadata_list + self._play_queue
+            self._download_queue = self._download_queue.extendleft(metadata_list)
+            self._play_queue = self._play_queue.extendleft(metadata_list)
         else:
             self._download_queue.extend(metadata_list)
             self._play_queue.extend(metadata_list)
@@ -90,8 +91,8 @@ class Session:
 
         await asyncio.gather(self._downloader, self._player)
 
-    def get_song_queue(self) -> list[Song]:
-        return self._play_queue + self._download_queue
+    def get_song_queue(self) -> deque[Song]:
+        return self._play_queue.copy()
 
     async def _start_downloader(self) -> None:
         while self._active:
@@ -111,7 +112,7 @@ class Session:
                 async with self._playback_ready:
                     self._playback_ready.notify()
 
-            self._download_queue.pop(0)
+            self._download_queue.popleft()
 
     def _get_metadata(self, query: str | discord.Attachment) -> list[Song]:
         if isinstance(query, discord.Attachment):
@@ -151,7 +152,7 @@ class Session:
             if not self._active:
                 break
 
-            song = self._play_queue.pop(0)
+            song = self._play_queue.popleft()
             self._voice.play(
                 discord.FFmpegPCMAudio(
                     song.audio,

@@ -88,12 +88,12 @@ class MusicService:
                 msg = "Next 10 song in queue:"
 
                 for i in range(10):
-                    msg += "\n" + str(i + 1) + ". " + song_queue[i].title
+                    msg += "\n" + str(i + 1) + ". " + song_queue.popleft().title
             else:
                 msg = "Queue:"
 
                 for i in range(len(song_queue)):
-                    msg += "\n" + str(i + 1) + ". " + song_queue[i].title
+                    msg += "\n" + str(i + 1) + ". " + song_queue.popleft().title
 
             return msg
         return "No songs queued!"
