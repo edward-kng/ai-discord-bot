@@ -51,6 +51,7 @@ class Session:
             random.shuffle(metadata_list)
 
         self._download_queue.extend(metadata_list)
+        self._play_queue.extend(metadata_list)
 
         async with self._download_ready:
             self._download_ready.notify()
@@ -102,10 +103,9 @@ class Session:
             if not song.audio:
                 song.audio = await asyncio.to_thread(self._get_audio, song)
 
-            self._play_queue.append(song)
-
-            async with self._playback_ready:
-                self._playback_ready.notify()
+            if song == self._play_queue[0]:
+                async with self._playback_ready:
+                    self._playback_ready.notify()
 
             self._download_queue.pop(0)
 
@@ -140,7 +140,7 @@ class Session:
 
     async def _start_playback(self) -> None:
         while self._active:
-            if len(self._play_queue) == 0:
+            if len(self._play_queue) == 0 or not self._play_queue[0].audio:
                 async with self._playback_ready:
                     await self._playback_ready.wait()
 
