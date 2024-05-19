@@ -35,7 +35,7 @@ class Session:
 
         self._music_fetcher = music_fetcher
 
-    async def enqueue(self, query: str, shuffle=False, pos=0) -> None:
+    async def enqueue(self, query: str, shuffle=False, pos=0, play_next=False) -> None:
         metadata_list = await asyncio.to_thread(self._get_metadata, query)
 
         if metadata_list is None:
@@ -50,8 +50,12 @@ class Session:
         if shuffle:
             random.shuffle(metadata_list)
 
-        self._download_queue.extend(metadata_list)
-        self._play_queue.extend(metadata_list)
+        if play_next:
+            self._download_queue = metadata_list + self._download_queue
+            self._play_queue = metadata_list + self._play_queue
+        else:
+            self._download_queue.extend(metadata_list)
+            self._play_queue.extend(metadata_list)
 
         async with self._download_ready:
             self._download_ready.notify()
