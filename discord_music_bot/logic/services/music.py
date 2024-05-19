@@ -21,6 +21,7 @@ class MusicService:
         guild: discord.Guild,
         channel: discord.TextChannel,
         shuffle=False,
+        play_next=False,
     ) -> str:
         user_voice = user.voice
 
@@ -38,7 +39,9 @@ class MusicService:
             asyncio.create_task(self.start_idle_timer(guild))
 
         asyncio.create_task(
-            self._sessions[guild].enqueue(query=query, pos=pos, shuffle=shuffle)
+            self._sessions[guild].enqueue(
+                query=query, pos=pos, shuffle=shuffle, play_next=play_next
+            )
         )
 
         return msg

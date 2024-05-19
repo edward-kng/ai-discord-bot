@@ -65,6 +65,10 @@ functions = [
                     playlist of songs. Has no effect on single songs. Defaults 
                     to false.""",
                 },
+                "play_next": {
+                    "type": "boolean",
+                    "description": """Whether to play this song next, putting it in the front of the song queue. Defaults to false.""",
+                },
             },
             "required": ["query"],
         },
@@ -188,7 +192,8 @@ class ChatService:
                     user,
                     guild,
                     channel,
-                    args["shuffle"] if "shuffle" in args else False,
+                    shuffle=args["shuffle"] if "shuffle" in args else False,
+                    play_next=args["play_next"] if "play_next" in args else False,
                 )
             elif fun == "get_now_playing_song":
                 msg = self._music_service.get_now_playing_song(guild)

@@ -16,12 +16,42 @@ def initMusicCommands(bot, music_service: MusicService) -> None:
         )
 
     @bot.tree.command()
+    async def play_next(
+        interaction: discord.Interaction, song: str, pos: typing.Optional[int]
+    ) -> None:
+        await interaction.response.send_message(
+            await music_service.enqueue_song(
+                song,
+                pos,
+                interaction.user,
+                interaction.guild,
+                interaction.channel,
+                play_next=True,
+            )
+        )
+
+    @bot.tree.command()
     async def play_file(
         interaction: discord.Interaction, file: discord.Attachment
     ) -> None:
         await interaction.response.send_message(
             await music_service.enqueue_song(
                 file, 0, interaction.user, interaction.guild, interaction.channel
+            )
+        )
+
+    @bot.tree.command()
+    async def play_file_next(
+        interaction: discord.Interaction, file: discord.Attachment
+    ) -> None:
+        await interaction.response.send_message(
+            await music_service.enqueue_song(
+                file,
+                0,
+                interaction.user,
+                interaction.guild,
+                interaction.channel,
+                play_next=True,
             )
         )
 
