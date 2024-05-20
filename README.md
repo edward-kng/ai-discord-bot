@@ -14,6 +14,8 @@ use the commands below instead.
 
 - `/play <song URL or title> [track nr to play from]` - play/enqueue a song/
 playlist
+- `/play_next <song URL or title> [track nr to play from]` - play a song next, 
+before every other song in the queue
 - `/play_file <file>` - play/enqueue attached music file
 - `/shuffle <playlist URL>` - shuffle and play/enqueue a playlist
 - `/skip` - skip the current song
