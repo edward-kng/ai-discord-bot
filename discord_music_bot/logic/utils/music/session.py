@@ -52,8 +52,8 @@ class Session:
             random.shuffle(metadata_list)
 
         if play_next:
-            self._download_queue = self._download_queue.extendleft(metadata_list)
-            self._play_queue = self._play_queue.extendleft(metadata_list)
+            self._download_queue.extendleft(metadata_list)
+            self._play_queue.extendleft(metadata_list)
         else:
             self._download_queue.extend(metadata_list)
             self._play_queue.extend(metadata_list)
