@@ -10,8 +10,8 @@ from .logic.services.chat import ChatService
 from .logic.services.music import MusicService
 from .logic.utils.music.music_fetcher import MusicFetcher
 from .presentation.bot import Bot
-from .presentation.commands.chat import initChatCommands
-from .presentation.commands.music import initMusicCommands
+from .presentation.commands.chat import init_chat_commands
+from .presentation.commands.music import init_music_commands
 
 
 class App:
@@ -46,8 +46,8 @@ class App:
         music_service = MusicService(self.bot, music_fetcher)
         chat_service = ChatService(self.bot, openai_client, music_service)
         self.bot.chat_service = chat_service
-        initMusicCommands(self.bot, music_service)
-        initChatCommands(self.bot, chat_service)
+        init_music_commands(self.bot, music_service)
+        init_chat_commands(self.bot, chat_service)
 
     def run(self) -> None:
         self.bot.run(os.getenv("DISCORD_BOT_TOKEN"))

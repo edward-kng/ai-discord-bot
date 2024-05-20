@@ -6,7 +6,7 @@ from discord_music_bot.logic.utils.chat.chat import (
 from ...logic.services.chat import ChatService
 
 
-def initChatCommands(bot: Bot, chat_service: ChatService) -> None:
+def init_chat_commands(bot: Bot, chat_service: ChatService) -> None:
     @bot.tree.command()
     async def say(interaction: discord.Interaction, msg: str) -> None:
         await interaction.response.send_message(msg)

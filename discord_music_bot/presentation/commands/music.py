@@ -4,7 +4,7 @@ import discord
 from ...logic.services.music import MusicService
 
 
-def initMusicCommands(bot, music_service: MusicService) -> None:
+def init_music_commands(bot, music_service: MusicService) -> None:
     @bot.tree.command()
     async def play(
         interaction: discord.Interaction, song: str, pos: typing.Optional[int]
