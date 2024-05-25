@@ -1,9 +1,13 @@
 import json
 import os
+import shutil
 from threading import Thread
 
 import discord
 import requests
+
+
+TMP_DIR = "tmp/"
 
 
 def download(attachment: discord.Attachment, path: str) -> None:
@@ -14,7 +18,7 @@ def download(attachment: discord.Attachment, path: str) -> None:
 
 
 async def export_history(channel: discord.TextChannel) -> None:
-    path = "chat-history/" + str(channel.id)
+    path = TMP_DIR + str(channel.id)
 
     if not os.path.exists(path + "/files"):
         os.makedirs(path + "/files")
@@ -24,13 +28,20 @@ async def export_history(channel: discord.TextChannel) -> None:
     with open(path + "/history.json", "w") as history_file:
         json.dump(history, history_file)
 
-    await channel.send("Chat history export finished!")
+    shutil.make_archive(path, "zip", path)
+
+    zip_path = path + ".zip"
+
+    await channel.send("Chat history export finished!", file=discord.File(zip_path))
+
+    shutil.rmtree(path)
+    os.remove(zip_path)
 
 
 async def download_history(
     channel: discord.TextChannel, limit: int | None = None, download_images=True
 ) -> dict:
-    path = "chat-history/" + str(channel.id)
+    path = TMP_DIR + str(channel.id)
     history = {"messages": []}
     threads = []
 
